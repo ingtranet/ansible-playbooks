@@ -1,0 +1,16 @@
+yugabyte:
+  children:
+    masters:
+      hosts:
+        yugabyte-m-1.mdc.ingtra.net:
+        yugabyte-m-2.mdc.ingtra.net:
+        yugabyte-m-3.mdc.ingtra.net:
+      vars:
+        yb_role: master
+    tservers:
+      hosts:
+        yugabyte-t-1.mdc.ingtra.net:
+        yugabyte-t-2.mdc.ingtra.net:
+        yugabyte-t-3.mdc.ingtra.net:
+      vars:
+        yb_role: tserver

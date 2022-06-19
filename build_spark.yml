@@ -1,0 +1,5 @@
+---
+- hosts: build_spark
+  user: root
+  roles:
+    - role: build_spark

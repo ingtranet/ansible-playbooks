@@ -1,0 +1,80 @@
+- name: Create User yugabyte
+  ansible.builtin.user:
+    name: yugabyte
+    state: present
+
+- name: Disable SELINUX Mode
+  ansible.posix.selinux:
+    state: disabled
+
+- name: Install Required Packages
+  ansible.builtin.yum:
+    state: present
+    name:
+      - tar
+      - wget
+
+- name: Download Yugabyte
+  ansible.builtin.get_url:
+    url: https://downloads.yugabyte.com/releases/2.13.0.0/yugabyte-2.13.0.0-b42-linux-x86_64.tar.gz
+    dest: /home/yugabyte/yugabyte.tar.gz
+
+- name: Stat Link Exists
+  ansible.builtin.stat:
+    path: /home/yugabyte/yugabyte
+  register: linkDir
+
+- name: Unarchive Yugabyte
+  ansible.builtin.unarchive:
+    src: /home/yugabyte/yugabyte.tar.gz
+    remote_src: yes
+    dest: /home/yugabyte
+  when: not linkDir.stat.exists
+
+- name: Link Yugabyte
+  ansible.builtin.file:
+    src: /home/yugabyte/yugabyte-2.13.0.0
+    path: /home/yugabyte/yugabyte
+    state: link
+
+- name: Chmod Files
+  ansible.builtin.file:
+    path: /home/yugabyte/yugabyte
+    group: yugabyte
+    owner: yugabyte
+    recurse: yes
+    state: directory
+
+- name: Run Post-install Script
+  ansible.builtin.shell:
+    cmd: cd /home/yugabyte/yugabyte && ./bin/post_install.sh
+    creates: /home/yugabyte/yugabyte/.post_install.sh.completed
+  become: yes
+  become_user: yugabyte
+  become_method: sudo
+
+- name: Create Directory
+  ansible.builtin.file:
+    path: /var/lib/yugabyte
+    group: yugabyte
+    owner: yugabyte
+    state: directory
+
+- name: Install Yugabyte Services
+  ansible.builtin.copy:
+    src: service/
+    dest: /etc/systemd/system
+
+- name: Start Yugabyte Master
+  ansible.builtin.systemd:
+    name: yb-master
+    enabled: yes
+    daemon_reload: yes
+    state: stopped
+
+- name: Start Yugabyte TServer
+  ansible.builtin.systemd:
+    name: yb-tserver
+    enabled: yes
+    daemon_reload: yes
+    state: stopped

@@ -1,0 +1,10 @@
+- name: Run Common Tasks
+  import_tasks: common.yml
+
+- name: Do Master Specific Tasks
+  import_tasks: master.yml
+  when: yb_role == 'master'
+
+- name: Do TServer Specific Tasks
+  import_tasks: tserver.yml
+  when: yb_role == 'tserver'

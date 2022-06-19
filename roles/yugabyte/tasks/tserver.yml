@@ -1,0 +1,20 @@
+- name: Create Directory In NFS
+  ansible.builtin.file:
+    path: /data/yugabyte
+    group: yugabyte
+    owner: yugabyte
+    state: directory
+
+- name: Copy Yugabyte TServer Config
+  ansible.builtin.template:
+    src: config/tserver.conf.j2
+    dest: /var/lib/yugabyte/tserver.conf
+    group: yugabyte
+    owner: yugabyte
+
+- name: Start Yugabyte TServer
+  ansible.builtin.systemd:
+    name: yb-tserver
+    enabled: yes
+    daemon_reload: yes
+    state: restarted

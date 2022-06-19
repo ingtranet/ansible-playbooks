@@ -1,0 +1,101 @@
+- name: install packages
+  ansible.builtin.yum:
+    name:
+      - tar
+      - python39
+      - java-11-openjdk-devel
+    state: present
+
+- name: Check Workdir
+  ansible.builtin.file:
+    path: "{{ workdir }}"
+    state: directory
+
+- name: Download Spark
+  ansible.builtin.get_url:
+    url: "https://dlcdn.apache.org/spark/spark-{{ version }}/spark-{{ version }}.tgz"
+    dest: "{{ workdir }}/spark.tgz"
+
+- name: Unarchive Spark
+  ansible.builtin.unarchive:
+    src: "{{ workdir }}/spark.tgz"
+    remote_src: yes
+    dest: "{{ workdir }}"
+
+#- name: Download Spark
+#  ansible.builtin.get_url:
+#    url: "https://github.com/apache/spark/archive/refs/heads/branch-3.3.tar.gz"
+#    dest: "{{ workdir }}/spark.tgz"
+
+#- name: Unarchive Spark
+#  ansible.builtin.unarchive:
+#    src: "{{ workdir }}/spark.tgz"
+#    remote_src: yes
+#    dest: "{{ workdir }}"
+
+# ./dev/change-scala-version.sh 2.13 && \
+- name: Build Spark
+  ansible.builtin.shell:
+    cmd: |
+      MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g" \
+      ./dev/make-distribution.sh \
+        --name ingtranet --pip --tgz \
+        -Phive -Phive-thriftserver -Pkubernetes -Phadoop-cloud
+    chdir: "{{ workdir }}/spark-{{ version }}"
+    creates: "{{ workdir }}/spark-{{ version }}/spark-{{ version }}-bin-ingtranet.tgz"
+
+- name: Unarchive Built Spark
+  ansible.builtin.unarchive:
+    src: "{{ workdir }}/spark-{{ version }}/spark-{{ version }}-bin-ingtranet.tgz"
+    remote_src: yes
+    dest: "{{ workdir }}"
+
+- name: Remove AWS Bundle
+  ansible.builtin.shell:
+    cmd: |
+      find . -type f -name "aws-java-sdk-bundle-*.jar" -delete
+
+- name: Add AWS Bundle
+  ansible.builtin.get_url:
+    url: "https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.12.201/aws-java-sdk-bundle-1.12.201.jar"
+    dest: "{{ workdir }}/spark-{{ version }}-bin-ingtranet/jars/"
+
+- name: Add bcprov
+  ansible.builtin.get_url:
+    url: "https://repo1.maven.org/maven2/org/bouncycastle/bcprov-jdk15on/1.70/bcprov-jdk15on-1.70.jar"
+    dest: "{{ workdir }}/spark-{{ version }}-bin-ingtranet/jars/"
+
+- name: Add bcpkix
+  ansible.builtin.get_url:
+    url: "https://repo1.maven.org/maven2/org/bouncycastle/bcpkix-jdk15on/1.70/bcpkix-jdk15on-1.70.jar"
+    dest: "{{ workdir }}/spark-{{ version }}-bin-ingtranet/jars/"
+
+- name: Add iceberg
+  ansible.builtin.get_url:
+    url: "https://search.maven.org/remotecontent?filepath=org/apache/iceberg/iceberg-spark-runtime-3.2_2.12/0.13.1/iceberg-spark-runtime-3.2_2.12-0.13.1.jar"
+    #url: "https://repository.apache.org/content/repositories/snapshots/org/apache/iceberg/iceberg-spark-runtime-3.2_2.12/0.14.0-SNAPSHOT/iceberg-spark-runtime-3.2_2.12-0.14.0-20220414.001436-30.jar"
+    dest: "{{ workdir }}/spark-{{ version }}-bin-ingtranet/jars/"
+
+- name: Build Tar
+  community.general.archive:
+    path: "{{ workdir }}/spark-{{ version }}-bin-ingtranet"
+    dest: "{{ workdir }}/spark-{{ version }}-bin-ingtranet.tar.gz"
+    format: gz
+
+- name: Build Spark Docker
+  ansible.builtin.shell:
+    cmd: |
+      ./bin/docker-image-tool.sh -r harbor.ingtra.net/library -t {{ version }} -X -f kubernetes/dockerfiles/spark/Dockerfile -b java_image_tag=11-jre-slim build 
+    chdir: "{{ workdir }}/spark-{{ version }}-bin-ingtranet"
+
+- name: Deploy Image
+  ansible.builtin.shell:
+    cmd: |
+      docker push harbor.ingtra.net/library/spark:3.2.1
+    chdir: "{{ workdir }}"
+
+- name: Deploy Tar
+  ansible.builtin.shell:
+    cmd: |
+      curl -XPUT --data-binary @spark-3.2.1-bin-ingtranet.tar.gz http://minio.mdc.ingtra.net/bins/spark/spark-3.2.1-bin-ingtranet.tar.gz
+    chdir: "{{ workdir }}"
