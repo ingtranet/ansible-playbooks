@@ -1,6 +1,0 @@
-build_spark:
-  hosts:
-    "172.23.0.101":
-  vars:
-    workdir: /root/spark_build
-    version: 3.2.1

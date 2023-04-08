@@ -1,0 +1,6 @@
+---
+- hosts: headscale
+  user: root
+  roles:
+    - role: headscale
+

@@ -1,9 +1,0 @@
----
-- hosts: yugabyte
-  user: ing
-  become: yes
-  become_user: root
-  become_method: sudo
-  roles:
-    - role: crate
-
