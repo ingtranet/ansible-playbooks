@@ -1,0 +1,22 @@
+- name: Install unbound
+  ansible.builtin.dnf:
+    name:
+      - unbound
+      - bind-utils
+    state: latest
+
+- name: Copy conf.d
+  ansible.builtin.copy:
+    src: "{{ inventory_hostname }}/conf.d/"
+    dest: /etc/unbound/conf.d/
+    
+- name: Copy local.d
+  ansible.builtin.copy:
+    src: "{{ inventory_hostname }}/local.d/"
+    dest: /etc/unbound/local.d/
+
+- name: Reload unbound
+  ansible.builtin.systemd:
+    name: unbound
+    enabled: true
+    state: reloaded

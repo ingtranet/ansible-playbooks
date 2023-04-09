@@ -1,0 +1,5 @@
+---
+- hosts: unbound
+  user: root
+  roles:
+    - role: unbound
