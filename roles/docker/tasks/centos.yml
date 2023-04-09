@@ -1,0 +1,32 @@
+- name: Uninstall present
+  ansible.builtin.dnf:
+    name:
+      - docker-client
+      - docker-client-latest
+      - docker-common
+      - docker-latest
+      - docker-latest-logrotate
+      - docker-logrotate
+      - docker-engine
+    state: absent
+
+- name: Install yum-utils
+  ansible.builtin.dnf:
+    name:
+      - yum-utils
+    state: present
+
+- name: Add docker repository
+  ansible.builtin.shell:
+    cmd: yum-config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+    creates: /etc/yum.repos.d/docker-ce.repo
+
+- name: Install docker
+  ansible.builtin.dnf:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: latest

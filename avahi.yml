@@ -1,0 +1,5 @@
+---
+- hosts: avahi
+  user: root
+  roles:
+    - role: avahi

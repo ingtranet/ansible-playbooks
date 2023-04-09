@@ -1,0 +1,84 @@
+{
+	#auto_https off
+	log {
+	    level info
+	}
+
+    storage s3 {
+        host "100.103.17.65:8333"
+        bucket "caddy"
+        access_id "caddy"
+        secret_key "caddysecret"
+        prefix "ssl"
+        insecure true
+    }
+}
+
+(cf_tls) {
+    tls {
+		issuer zerossl {
+		    disable_http_challenge
+		    email {$ACME_EMAIL}
+			dns cloudflare {$CLOUDFLARE_TOKEN}
+			resolvers 1.1.1.1
+		}
+    }
+}
+
+harbor.ingtra.net {
+    import cf_tls
+	reverse_proxy {
+	    to 100.103.17.68:8080
+	}
+}
+
+master.seaweedfs.mdc.ingtra.net {
+    import cf_tls
+    reverse_proxy {
+		to 100.103.17.65:9333
+	}
+}
+
+filer.seaweedfs.mdc.ingtra.net {
+	import cf_tls
+	header {
+		?Content-Type    application/octet-stream
+	}
+	reverse_proxy {
+		to 100.103.17.65:8888
+	}
+}
+
+volume.seaweedfs.mdc.ingtra.net {
+	import cf_tls
+	reverse_proxy {
+		to 100.103.17.65:8080
+	}
+}
+
+s3.seaweedfs.mdc.ingtra.net {
+	import cf_tls
+	header {
+		?Content-Type    application/octet-stream
+	}
+	reverse_proxy {
+		to 100.103.17.65:8333
+	}
+}
+
+webdav.seaweedfs.mdc.ingtra.net {
+	import cf_tls
+	reverse_proxy {
+		to 100.103.17.65:7333
+	}
+}
+
+*.s3.seaweedfs.mdc.ingtra.net {
+	import cf_tls
+	header {
+		?Content-Type    application/octet-stream
+	}
+	reverse_proxy {
+		to 100.103.17.65:8333
+	}
+}

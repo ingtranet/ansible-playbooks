@@ -1,0 +1,124 @@
+version: "3.9"
+
+services:
+  caddy:
+    container_name: caddy
+    image: ingtranet/caddy:2.6.4
+    restart: always
+    environment:
+      "ACME_EMAIL": "{{ secret_acme_email }}"
+      "CLOUDFLARE_TOKEN": "{{ secret_cloudflare_token }}"
+    volumes:
+      - type: bind
+        source: "{{ config_path }}/{{ item }}/caddy/Caddyfile"
+        target: /etc/caddy/Caddyfile
+    networks:
+      ovs_docker317:
+        ipv4_address: 100.103.17.64
+
+  seaweedfs:
+    container_name: seaweedfs
+    image: chrislusf/seaweedfs:3.39_large_disk
+    command: server -master.volumeSizeLimitMB 30720 -volume.max 1000 -options /etc/seaweedfs/options
+    restart: always
+    volumes:
+      - type: bind
+        source: /volume1/seaweedfs/config
+        target: /etc/seaweedfs
+      - type: bind
+        source: /volume1/seaweedfs/data
+        target: /data
+    networks:
+      ovs_docker317:
+        ipv4_address: 100.103.17.65
+
+  mysql:
+    container_name: mysql
+    image: mysql:8.0.32
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+    restart: always
+    volumes:
+      - type: bind
+        source: /volume1/docker/mysql/config
+        target: /etc/mysql/conf.d
+      - type: bind
+        source: /volume1/docker/mysql/data
+        target: /var/lib/mysql
+    networks:
+      ovs_docker317:
+        ipv4_address: 100.103.17.66
+
+  postgresql:
+    container_name: postgresql
+    image: postgres:15.1
+    environment:
+      POSTGRES_PASSWORD: postgresql
+    restart: always
+    volumes:
+      - type: bind
+        source: /volume1/docker/postgresql/data
+        target: /var/lib/postgresql/data
+    networks:
+      ovs_docker317:
+        ipv4_address: 100.103.17.67
+
+  clickhouse:
+    container_name: clickhouse
+    image: clickhouse/clickhouse-server:22.8.15.23
+    restart: always
+    mem_limit: 2g
+    volumes:
+      - type: bind
+        source: /volume1/docker/clickhouse/config
+        target: /etc/clickhouse-server/config.d
+      - type: bind
+        source: /volume1/docker/clickhouse/data
+        target: /var/lib/clickhouse
+    networks:
+      ovs_docker317:
+        ipv4_address: 100.103.17.69
+    cap_add:
+      - SYS_NICE
+      - NET_ADMIN
+      - IPC_LOCK
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
+  opensearch:
+    container_name: opensearch
+    image: opensearchproject/opensearch:2.6.0
+    restart: always
+    environment:
+      "discovery.type": "single-node"
+      "DISABLE_INSTALL_DEMO_CONFIG": "true"
+      "DISABLE_SECURITY_PLUGIN": "true"
+      "OPENSEARCH_JAVA_OPTS": "-Xms1024m -Xmx2048m"
+    volumes:
+      - type: bind
+        source: /volume1/docker/opensearch/data
+        target: /usr/share/opensearch/data
+    networks:
+      ovs_docker317:
+        ipv4_address: 100.103.17.70
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+      memlock:
+        soft: -1
+        hard: -1
+
+networks:
+  ovs_docker317:
+    name: ovs_docker317
+    driver: macvlan
+    driver_opts:
+      parent: ovs_docker317
+    ipam:
+      config:
+        - subnet: 100.103.17.0/24
+          ip_range: 100.103.17.64/26
+          gateway: 100.103.17.1

@@ -1,0 +1,25 @@
+- name: Create config path
+  ansible.builtin.file:
+    path: "{{ config_path }}"
+    state: directory
+
+- name: Template Caddyfile
+  ansible.builtin.template:
+    src: "{{ caddy_role }}/Caddyfile"
+    dest: "{{ config_path }}/Caddyfile"
+
+- name: Start docker container
+  community.docker.docker_container:
+    name: caddy
+    image: ingtranet/caddy:{{ caddy_version }}
+    network_mode: host
+    restart_policy: always
+    detach: true
+    volumes:
+      - "{{ config_path }}/Caddyfile:/etc/caddy/Caddyfile"
+    state: started
+
+- name: Reload configs
+  community.docker.docker_container_exec:
+    container: caddy
+    command: caddy reload --config /etc/caddy/Caddyfile

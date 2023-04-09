@@ -7,12 +7,12 @@
 
 - name: Copy conf.d
   ansible.builtin.copy:
-    src: "{{ inventory_hostname }}/conf.d/"
+    src: "{{ unbound_role }}/conf.d/"
     dest: /etc/unbound/conf.d/
     
 - name: Copy local.d
   ansible.builtin.copy:
-    src: "{{ inventory_hostname }}/local.d/"
+    src: "{{ unbound_role }}/local.d/"
     dest: /etc/unbound/local.d/
 
 - name: Reload unbound

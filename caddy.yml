@@ -1,0 +1,6 @@
+---
+- hosts: caddy
+  user: root
+  roles:
+    - docker
+    - caddy

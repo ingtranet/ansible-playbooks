@@ -1,0 +1,16 @@
+- name: Install avahi
+  ansible.builtin.dnf:
+    name:
+      - avahi
+    state: latest
+
+- name: Copy avahi-daemon.conf
+  ansible.builtin.copy:
+    src: avahi-daemon.conf
+    dest: /etc/avahi/avahi-daemon.conf
+
+- name: Reload unbound
+  ansible.builtin.systemd:
+    name: avahi
+    enabled: true
+    state: reloaded
