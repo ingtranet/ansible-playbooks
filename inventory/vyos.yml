@@ -1,0 +1,8 @@
+vyos:
+  hosts:
+    "10.1.0.1":
+      ansible_python_interpreter: /usr/bin/python3
+      ansible_user: vyos
+      ansible_ssh_pass: vyos
+      ansible_network_os: vyos
+      ansible_connection: network_cli
