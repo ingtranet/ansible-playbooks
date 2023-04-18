@@ -1,6 +1,6 @@
 caddy:
   hosts:
-    "ag.ingtra.net":
+    "admin-proxy.vd.ingtra.net":
       config_path: /root/caddy
       caddy_role: admin_gateway
   vars:

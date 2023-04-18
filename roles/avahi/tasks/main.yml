@@ -1,7 +1,14 @@
 - name: Install avahi
   ansible.builtin.dnf:
     name:
+      - epel-release
+    state: present
+
+- name: Install avahi
+  ansible.builtin.dnf:
+    name:
       - avahi
+      - nss-mdns
     state: latest
 
 - name: Copy avahi-daemon.conf
@@ -9,8 +16,8 @@
     src: avahi-daemon.conf
     dest: /etc/avahi/avahi-daemon.conf
 
-- name: Reload unbound
+- name: Reload avahi
   ansible.builtin.systemd:
-    name: avahi
+    name: avahi-daemon
     enabled: true
     state: reloaded

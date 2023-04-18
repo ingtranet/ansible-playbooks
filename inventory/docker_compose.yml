@@ -1,6 +1,6 @@
 docker_compose:
   hosts:
-    "synology.mdc.ingtra.net":
+    "synology.dv.ingtra.net":
       ansible_user: cookieshake
       config_path: /volume1/docker/compose
       compose_roles:

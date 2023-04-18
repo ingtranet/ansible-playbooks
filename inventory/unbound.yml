@@ -1,5 +1,5 @@
 unbound:
   hosts:
-    "unbound.gateway.ingtra.net":
+    "10.0.32.11":
       ansible_user: root
       unbound_role: ingtra-net-main

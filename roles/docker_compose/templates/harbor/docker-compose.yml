@@ -239,8 +239,8 @@ services:
         target: /harbor_cust_cert
     networks:
       harbor:
-      ovs_docker317:
-        ipv4_address: 100.103.17.68
+      ovs_docker233:
+        ipv4_address: 10.2.33.201
     depends_on:
       - registry
       - core
@@ -274,5 +274,5 @@ services:
 networks:
   harbor:
     external: false
-  ovs_docker317:
+  ovs_docker233:
     external: true

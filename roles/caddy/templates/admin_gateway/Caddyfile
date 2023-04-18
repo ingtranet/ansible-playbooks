@@ -4,7 +4,7 @@
     }
 
     storage s3 {
-        host "s3.seaweedfs.mdc.ingtra.net"
+        host "s3.seaweedfs.ingtra.net"
         bucket "caddy"
         access_id "caddy"
         secret_key "caddysecret"
@@ -23,51 +23,39 @@
     }
 }
 
-
-gateway.ag.ingtra.net {
+unifi.ingtra.net {
     import cf_tls
     reverse_proxy {
-        to https://100.100.0.11:8006
+        to https://10.0.0.1
         transport http {
             tls_insecure_skip_verify
         }
     }
 }
 
-unifi.ag.ingtra.net {
+pve.ingtra.net {
     import cf_tls
     reverse_proxy {
-        to https://100.101.0.254
+        to https://pve-gateway.dv.ingtra.net:8006
         transport http {
             tls_insecure_skip_verify
         }
     }
 }
 
-pve.ag.ingtra.net {
+sophos.ingtra.net {
     import cf_tls
     reverse_proxy {
-        to https://pve1.mdc.ingtra.net:8006
-        to https://pve2.mdc.ingtra.net:8006
-        to https://pve3.mdc.ingtra.net:8006
-        transport http {
-            tls_insecure_skip_verify
-        }
-        lb_policy first
-    }
-}
-
-sophos.ag.ingtra.net {
-    import cf_tls
-    reverse_proxy {
-        to https://100.100.0.1:4444
+        to https://10.0.1.1:4444
         transport http {
             tls_insecure_skip_verify
         }
     }
 }
 
-*.ag.ingtra.net {
+synology.ingtra.net {
     import cf_tls
-    respond "Not Found" 404
+    reverse_proxy {
+        to http://synology.dv.ingtra.net:5000
+    }
 }

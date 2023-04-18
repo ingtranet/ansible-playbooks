@@ -5,7 +5,7 @@
 	}
 
     storage s3 {
-        host "100.103.17.65:8333"
+        host "10.2.33.12:8333"
         bucket "caddy"
         access_id "caddy"
         secret_key "caddysecret"
@@ -28,57 +28,57 @@
 harbor.ingtra.net {
     import cf_tls
 	reverse_proxy {
-	    to 100.103.17.68:8080
+	    to 10.2.33.201:8080
 	}
 }
 
-master.seaweedfs.mdc.ingtra.net {
+master.seaweedfs.ingtra.net {
     import cf_tls
     reverse_proxy {
-		to 100.103.17.65:9333
+		to 10.2.33.12:9333
 	}
 }
 
-filer.seaweedfs.mdc.ingtra.net {
+filer.seaweedfs.ingtra.net {
 	import cf_tls
 	header {
 		?Content-Type    application/octet-stream
 	}
 	reverse_proxy {
-		to 100.103.17.65:8888
+		to 10.2.33.12:8888
 	}
 }
 
-volume.seaweedfs.mdc.ingtra.net {
+volume.seaweedfs.ingtra.net {
 	import cf_tls
 	reverse_proxy {
-		to 100.103.17.65:8080
+		to 10.2.33.12:8080
 	}
 }
 
-s3.seaweedfs.mdc.ingtra.net {
-	import cf_tls
-	header {
-		?Content-Type    application/octet-stream
-	}
-	reverse_proxy {
-		to 100.103.17.65:8333
-	}
-}
-
-webdav.seaweedfs.mdc.ingtra.net {
-	import cf_tls
-	reverse_proxy {
-		to 100.103.17.65:7333
-	}
-}
-
-*.s3.seaweedfs.mdc.ingtra.net {
+s3.seaweedfs.ingtra.net {
 	import cf_tls
 	header {
 		?Content-Type    application/octet-stream
 	}
 	reverse_proxy {
-		to 100.103.17.65:8333
+		to 10.2.33.12:8333
+	}
+}
+
+webdav.seaweedfs.ingtra.net {
+	import cf_tls
+	reverse_proxy {
+		to 10.2.33.12:7333
+	}
+}
+
+*.s3.seaweedfs.ingtra.net {
+	import cf_tls
+	header {
+		?Content-Type    application/octet-stream
+	}
+	reverse_proxy {
+		to 10.2.33.12:8333
 	}
 }

@@ -16,21 +16,81 @@ firewall {
             network 172.16.0.0/12
             network 192.168.0.0/16
         }
-        network-group RESIDENT {
+        network-group ADMIN {
+            network 10.0.0.0/24
             network 10.1.0.0/24
         }
     }
-    name ROUTER-IN {
-        enable-default-log
-        default-action accept
-    }
     name ROUTER-OUT {
         enable-default-log
-        default-action accept
+        default-action drop
+        rule 10 {
+            action accept
+            source {
+                group {
+                    network-group ADMIN
+                }
+            }
+        }
+        rule 20 {
+            action accept
+            destination {
+                group {
+                    network-group !RFC1918
+                }
+            }
+        }
     }
-    name LAN-IN {
+    name NETCOM-OUT {
         enable-default-log
-        default-action accept
+        default-action drop
+        rule 10 {
+            action accept
+            source {
+                group {
+                    network-group ADMIN
+                }
+            }
+        }
+        rule 20 {
+            action accept
+            protocol udp
+            destination {
+                fqdn unbound.vd.ingtra.net
+                port 53
+            }
+        }
+        rule 21 {
+            action accept
+            protocol udp
+            destination {
+                fqdn adguard-home.vd.ingtra.net
+                port 53
+            }
+        }
+    }
+    name MDC-OUT {
+        enable-default-log
+        default-action drop
+        rule 10 {
+            action accept
+            source {
+                group {
+                    network-group ADMIN
+                }
+            }
+        }
+        rule 20 {
+            action accept
+            protocol tcp
+            source {
+                fqdn admin-proxy.vd.ingtra.net
+            }
+            destination {
+                fqdn caddy.sd.ingtra.net
+                port '80,443'
+            }
+        }
     }
     name LAN-OUT {
         enable-default-log
@@ -39,31 +99,63 @@ firewall {
             action accept
             source {
                 group {
-                    network-group RESIDENT
+                    network-group ADMIN
                 }
             }
         }
     }    
-    interface eth0.* {
-        in {
-            name LAN-IN
-        }
-        out {
-            name LAN-OUT
-        }
-    }
-    interface eth1.* {
-        in {
-            name ROUTER-IN
-        }
+    interface eth0.1 {
         out {
             name ROUTER-OUT
+        }
+    }
+    interface eth1.32 {
+        out {
+            name NETCOM-OUT
+        }
+    }
+    interface eth1.40 {
+        out {
+            name NETCOM-OUT
+        }
+    }
+    interface eth2.* {
+        out {
+            name LAN-OUT
         }
     }
 }
 
 interfaces {
     ethernet eth0 {
+        offload {
+            gro
+            gso
+            sg
+            tso
+        }
+        vif 1 {
+            address 10.0.1.2/24
+        }
+        vif 4040 {
+            address 10.255.253.1/24
+        }
+    }
+    ethernet eth1 {
+        offload {
+            gro
+            gso
+            sg
+            tso
+        }
+        vif 32 {
+            address 10.0.32.1/24
+        }
+        vif 40 {
+            address 10.0.40.1/24
+        }
+    }
+    ethernet eth2 {
         offload {
             gro
             gso
@@ -85,20 +177,6 @@ interfaces {
         vif 117 {
             address 10.1.17.1/24
         }
-        vif 4040 {
-            address 10.255.253.1/24
-        }
-    }
-    ethernet eth1 {
-        offload {
-            gro
-            gso
-            sg
-            tso
-        }
-        vif 1 {
-            address 10.0.1.2/24
-        }
     }
     loopback lo {
     }
@@ -109,7 +187,7 @@ service {
         shared-network-name resident {
             subnet 10.1.0.0/24 {
                 default-router 10.1.0.1
-                name-server 1.1.1.1
+                name-server 10.0.32.12
                 range 0 {
                     start 10.1.0.100
                     stop 10.1.0.199
@@ -119,7 +197,7 @@ service {
         shared-network-name nya {
             subnet 10.1.1.0/24 {
                 default-router 10.1.1.1
-                name-server 1.1.1.1
+                name-server 10.0.32.12
                 range 0 {
                     start 10.1.1.100
                     stop 10.1.1.199
@@ -129,7 +207,7 @@ service {
         shared-network-name guest {
             subnet 10.1.2.0/24 {
                 default-router 10.1.2.1
-                name-server 1.1.1.1
+                name-server 10.0.32.12
                 range 0 {
                     start 10.1.2.100
                     stop 10.1.2.199
@@ -139,7 +217,7 @@ service {
         shared-network-name multimedia {
             subnet 10.1.16.0/24 {
                 default-router 10.1.16.1
-                name-server 1.1.1.1
+                name-server 10.0.32.12
                 range 0 {
                     start 10.1.16.100
                     stop 10.1.16.199
@@ -149,7 +227,7 @@ service {
         shared-network-name iot {
             subnet 10.1.17.0/24 {
                 default-router 10.1.17.1
-                name-server 1.1.1.1
+                name-server 10.0.32.12
                 range 0 {
                     start 10.1.17.100
                     stop 10.1.17.199
@@ -204,6 +282,7 @@ system {
         }
     }
     host-name vyos
+    name-server 10.0.32.11
     name-server 1.1.1.1
     name-server 1.0.0.1
     login {

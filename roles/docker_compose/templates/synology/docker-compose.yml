@@ -14,7 +14,7 @@ services:
         target: /etc/caddy/Caddyfile
     networks:
       ovs_docker317:
-        ipv4_address: 100.103.17.64
+        ipv4_address: 10.2.33.11
 
   seaweedfs:
     container_name: seaweedfs
@@ -30,7 +30,7 @@ services:
         target: /data
     networks:
       ovs_docker317:
-        ipv4_address: 100.103.17.65
+        ipv4_address: 10.2.33.12
 
   mysql:
     container_name: mysql
@@ -47,7 +47,7 @@ services:
         target: /var/lib/mysql
     networks:
       ovs_docker317:
-        ipv4_address: 100.103.17.66
+        ipv4_address: 10.2.33.13
 
   postgresql:
     container_name: postgresql
@@ -61,7 +61,7 @@ services:
         target: /var/lib/postgresql/data
     networks:
       ovs_docker317:
-        ipv4_address: 100.103.17.67
+        ipv4_address: 10.2.33.14
 
   clickhouse:
     container_name: clickhouse
@@ -77,7 +77,7 @@ services:
         target: /var/lib/clickhouse
     networks:
       ovs_docker317:
-        ipv4_address: 100.103.17.69
+        ipv4_address: 10.2.33.15
     cap_add:
       - SYS_NICE
       - NET_ADMIN
@@ -102,7 +102,7 @@ services:
         target: /usr/share/opensearch/data
     networks:
       ovs_docker317:
-        ipv4_address: 100.103.17.70
+        ipv4_address: 10.2.33.16
     ulimits:
       nofile:
         soft: 262144
@@ -113,12 +113,12 @@ services:
 
 networks:
   ovs_docker317:
-    name: ovs_docker317
+    name: ovs_docker233
     driver: macvlan
     driver_opts:
-      parent: ovs_docker317
+      parent: ovs_docker233
     ipam:
       config:
-        - subnet: 100.103.17.0/24
-          ip_range: 100.103.17.64/26
-          gateway: 100.103.17.1
+        - subnet: 10.2.33.0/24
+          ip_range: 10.2.33.0/24
+          gateway: 10.2.33.1
