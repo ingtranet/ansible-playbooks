@@ -32,14 +32,14 @@ harbor.ingtra.net {
 	}
 }
 
-master.seaweedfs.ingtra.net {
+master.sf.ingtra.net {
     import cf_tls
     reverse_proxy {
 		to 10.2.33.12:9333
 	}
 }
 
-filer.seaweedfs.ingtra.net {
+filer.sf.ingtra.net {
 	import cf_tls
 	header {
 		?Content-Type    application/octet-stream
@@ -49,14 +49,14 @@ filer.seaweedfs.ingtra.net {
 	}
 }
 
-volume.seaweedfs.ingtra.net {
+volume.sf.ingtra.net {
 	import cf_tls
 	reverse_proxy {
 		to 10.2.33.12:8080
 	}
 }
 
-s3.seaweedfs.ingtra.net {
+s3.sf.ingtra.net {
 	import cf_tls
 	header {
 		?Content-Type    application/octet-stream
@@ -66,14 +66,14 @@ s3.seaweedfs.ingtra.net {
 	}
 }
 
-webdav.seaweedfs.ingtra.net {
+webdav.sf.ingtra.net {
 	import cf_tls
 	reverse_proxy {
 		to 10.2.33.12:7333
 	}
 }
 
-*.s3.seaweedfs.ingtra.net {
+*.s3.sf.ingtra.net {
 	import cf_tls
 	header {
 		?Content-Type    application/octet-stream

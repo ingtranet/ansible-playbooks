@@ -4,7 +4,7 @@
     }
 
     storage s3 {
-        host "s3.seaweedfs.ingtra.net"
+        host "s3.sf.ingtra.net"
         bucket "caddy"
         access_id "caddy"
         secret_key "caddysecret"
