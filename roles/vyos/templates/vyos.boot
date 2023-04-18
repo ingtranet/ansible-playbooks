@@ -26,18 +26,28 @@ firewall {
         default-action drop
         rule 10 {
             action accept
+            destination {
+                group {
+                    network-group !RFC1918
+                }
+            }
+        }
+        rule 20 {
+            action accept
             source {
                 group {
                     network-group ADMIN
                 }
             }
         }
-        rule 20 {
+        rule 30 {
             action accept
+            protocol tcp
+            source {
+                fqdn admin-proxy.vd.ingtra.net
+            }
             destination {
-                group {
-                    network-group !RFC1918
-                }
+                port '80,443,4444,5000,8006'
             }
         }
     }
@@ -69,29 +79,6 @@ firewall {
             }
         }
     }
-    name MDC-OUT {
-        enable-default-log
-        default-action drop
-        rule 10 {
-            action accept
-            source {
-                group {
-                    network-group ADMIN
-                }
-            }
-        }
-        rule 20 {
-            action accept
-            protocol tcp
-            source {
-                fqdn admin-proxy.vd.ingtra.net
-            }
-            destination {
-                fqdn caddy.sd.ingtra.net
-                port '80,443'
-            }
-        }
-    }
     name LAN-OUT {
         enable-default-log
         default-action drop
@@ -104,7 +91,7 @@ firewall {
             }
         }
     }    
-    interface eth0.1 {
+    interface eth0.* {
         out {
             name ROUTER-OUT
         }
