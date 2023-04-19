@@ -20,6 +20,12 @@ firewall {
             network 10.0.0.0/24
             network 10.1.0.0/24
         }
+        network-group USER {
+            network 10.1.0.0/20
+        }
+        network-group MULTIMEDIA {
+            network 10.1.16.0/24
+        }
     }
     name ROUTER-OUT {
         enable-default-log
@@ -87,6 +93,19 @@ firewall {
             source {
                 group {
                     network-group ADMIN
+                }
+            }
+        }
+        rule 20 {
+            action accept
+            source {
+                group {
+                    network-group USER
+                }
+            }
+            destination {
+                group {
+                    network-group MULTIMEDIA
                 }
             }
         }
