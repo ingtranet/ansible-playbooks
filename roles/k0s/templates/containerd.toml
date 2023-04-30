@@ -1,0 +1,12 @@
+# This is a placeholder configuration for k0s managed containerD.
+# If you wish to customize the config replace this file with your custom configuration.
+# For reference see https://github.com/containerd/containerd/blob/main/docs/man/containerd-config.toml.5.md
+version = 2
+
+[plugins."io.containerd.grpc.v1.cri".registry.mirrors]
+    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
+    endpoint = ["https://harbor.ingtra.net/v2/docker.io/"]
+    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."quay.io"]
+    endpoint = ["https://harbor.ingtra.net/v2/quay.io/"]
+    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."registry.k8s.io"]
+    endpoint = ["https://harbor.ingtra.net/v2/registry.k8s.io/"]

@@ -1,0 +1,12 @@
+k0s:
+  hosts:
+    "10.2.32.251":
+      role: controlplane
+      node_type: lxc
+    "10.2.32.252":
+      role: worker
+      node_type: lxc
+  vars:
+    k0s_version: v1.27.1+k0s.0
+    force_reinstall: false
+    token_issuer: 10.2.32.251

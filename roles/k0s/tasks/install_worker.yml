@@ -1,0 +1,12 @@
+- name: Install Worker
+  ansible.builtin.shell:
+    cmd: |
+      echo "{{ hostvars[token_issuer]['join_token']['stdout'] }}" > /etc/k0s/join_token
+      sudo /usr/local/bin/k0s install worker --token-file /etc/k0s/join_token
+    creates: "{{ '/never-exists' if force_reinstall else '/etc/systemd/system/k0sworker.service' }}"
+
+- name: Start Worker
+  ansible.builtin.shell:
+    cmd: |
+      sudo systemctl start k0sworker
+

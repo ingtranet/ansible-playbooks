@@ -1,0 +1,8 @@
+- name: Copy rc.local
+  ansible.builtin.copy:
+    src: rc.local
+    dest: /etc/rc.local
+    mode: 755
+
+- name: Run rc.local
+  ansible.builtin.shell: /etc/rc.local

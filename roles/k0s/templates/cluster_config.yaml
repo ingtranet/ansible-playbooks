@@ -1,0 +1,44 @@
+apiVersion: k0s.k0sproject.io/v1beta1
+kind: ClusterConfig
+metadata:
+  name: k0s
+spec:
+  api:
+    address: {{ ansible_eth0.ipv4.address }}
+    #externalAddress: k0s-api.ingtra.net
+    sans:
+      - {{ ansible_eth0.ipv4.address }}
+      - 10.160.0.1
+      - {{ inventory_hostname }}
+      - k0s-api.ingtra.net
+  extensions:
+    helm:
+      charts:
+        - name: argocd
+          chartname: argo/argo-cd
+          version: 5.29.1
+          namespace: argocd
+          values: |
+            server:
+              extraArgs:
+              - --insecure
+      repositories:
+        - name: argo
+          url: https://argoproj.github.io/argo-helm
+  network:
+    calico:
+      mode: vxlan
+      #envVars:
+      #  FELIX_FEATUREDETECTOVERRIDE: ChecksumOffloadBroken=true
+      #overlay: Never
+      #ipAutodetectionMethod: cidr=172.22.1.0/24
+    clusterDomain: k0.ingtra.net
+    kubeProxy:
+      mode: iptables
+    podCIDR: 10.160.32.0/19
+    provider: kuberouter
+    serviceCIDR: 10.160.0.0/19
+  storage:
+    type: etcd
+    #kine:
+    #  dataSource: "mysql://k0s:k0s@tcp(10.2.33.13)/k0s"

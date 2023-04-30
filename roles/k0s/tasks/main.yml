@@ -1,0 +1,26 @@
+#- name: Initialize for LXC
+#  ansible.builtin.import_tasks: init_lxc.yml
+#  when: node_type == 'lxc'
+
+- name: Install K0S
+  ansible.builtin.shell:
+    cmd: curl -sSLf https://get.k0s.sh | sudo K0S_VERSION={{ k0s_version }} sh
+    creates: "{{ '/never-exists' if force_reinstall else '/usr/local/bin/k0s' }}"
+
+- name: Create /etc/k0s
+  ansible.builtin.file:
+    path: /etc/k0s
+    state: directory
+
+#- name: Copy containerd config
+#  ansible.builtin.template:
+#    src: containerd.toml
+#    dest: /etc/k0s/containerd.toml
+
+- name: Install controlplane
+  ansible.builtin.import_tasks: install_controlplane.yml
+  when: role == 'controlplane'
+
+- name: Install worker
+  ansible.builtin.import_tasks: install_worker.yml
+  when: role == 'worker'
