@@ -1,0 +1,7 @@
+---
+- hosts: lxc
+  user: root
+  become: true
+  become_method: sudo
+  roles:
+    - role: lxc

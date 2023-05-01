@@ -1,0 +1,71 @@
+- name: Check container exists
+  ansible.builtin.shell: lxc-info k0s-worker
+  register: container_exists
+  ignore_errors: true
+
+- name: Install Container
+  community.general.lxc_container:
+    name: k0s-worker
+    state: stopped
+    container_log: true
+    template: download
+    template_options: --dist rockylinux --release 9 --arch {{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}
+  when: container_exists is failed
+
+- name: Remove config
+  ansible.builtin.file:
+    path: /var/lib/lxc/k0s-worker/config
+    state: absent
+
+- name: Add config
+  ansible.builtin.blockinfile:
+    path: /var/lib/lxc/k0s-worker/config
+    create: true
+    mode: 640
+    block: |
+      lxc.uts.name = k0s-worker
+      lxc.arch = {{ 'amd64' if ansible_architecture == 'x86_64' else 'aarch64' }}
+      lxc.rootfs.path = dir:/var/lib/lxc/k0s-worker/rootfs
+      lxc.include = /usr/share/lxc/config/common.conf
+      lxc.start.auto = 1
+      lxc.cgroup2.memory.max = 4294967296
+      lxc.cgroup2.memory.swap.max = 0
+      lxc.cgroup2.devices.allow = a
+      lxc.mount.entry = /dev/kmsg dev/kmsg none defaults,bind,create=file
+      lxc.mount.auto = proc:rw sys:rw cgroup
+      lxc.apparmor.profile = unconfined
+      lxc.net.0.type = vlan
+      lxc.net.0.flags = up
+      lxc.net.0.link = eth0
+      lxc.net.0.vlan.id = 232
+      lxc.net.0.ipv4.address = 10.2.32.244/24
+      lxc.net.0.ipv4.gateway = 10.2.32.1
+
+- name: Initialize Container (1)
+  community.general.lxc_container:
+    name: k0s-worker
+    state: started
+    container_command: |
+      dnf remove -y NetworkManager
+      mkdir /root/.ssh
+      echo "ssh-rsa {{ secret_ssh_public_key }}" > /root/.ssh/authorized_keys
+      cat << __EOF > /etc/resolv.conf
+      search vd.ingtra.net
+      nameserver 10.0.32.11
+      __EOF
+  when: container_exists is failed
+
+- name: Initialize Container (2)
+  community.general.lxc_container:
+    name: k0s-worker
+    state: restarted
+
+- name: Initialize Container (3)
+  community.general.lxc_container:
+    name: k0s-worker
+    container_command: |
+      dnf upgrade -y
+      dnf install -y openssh-server vim
+      echo "PermitRootLogin yes" > /etc/ssh/sshd_config.d/permit-root-login.conf
+      systemctl enable sshd
+      systemctl start sshd

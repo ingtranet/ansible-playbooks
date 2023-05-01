@@ -1,0 +1,17 @@
+- name: Install required packages
+  ansible.builtin.apt:
+    pkg:
+      - lxc
+      - python3-lxc
+    state: present
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Disable lxc-net
+  ansible.builtin.systemd:
+    name: lxc-net
+    state: stopped
+    enabled: false
+
+- name: Ensure Role
+  ansible.builtin.include_tasks: "{{ item }}.yml"
+  loop: "{{ roles }}"
