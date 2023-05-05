@@ -1,0 +1,5 @@
+---
+- hosts: http_transparent_proxy
+  user: root
+  roles:
+    - role: http_transparent_proxy

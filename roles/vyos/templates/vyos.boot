@@ -1,12 +1,15 @@
 firewall {
     state-policy {
         established {
+            log enable
             action accept
         }
         invalid {
+            log enable
             action accept
         }
         related {
+            log enable
             action accept
         }
     }
@@ -27,10 +30,11 @@ firewall {
             network 10.1.16.0/24
         }
     }
-    name ROUTER-OUT {
+    name WAN-OUT {
         enable-default-log
         default-action drop
         rule 10 {
+            log enable
             action accept
             destination {
                 group {
@@ -39,6 +43,7 @@ firewall {
             }
         }
         rule 20 {
+            log enable
             action accept
             source {
                 group {
@@ -47,6 +52,7 @@ firewall {
             }
         }
         rule 30 {
+            log enable
             action accept
             protocol tcp
             source {
@@ -61,6 +67,7 @@ firewall {
         enable-default-log
         default-action drop
         rule 10 {
+            log enable
             action accept
             source {
                 group {
@@ -69,6 +76,7 @@ firewall {
             }
         }
         rule 20 {
+            log enable
             action accept
             protocol udp
             destination {
@@ -77,6 +85,7 @@ firewall {
             }
         }
         rule 21 {
+            log enable
             action accept
             protocol udp
             destination {
@@ -84,11 +93,24 @@ firewall {
                 port 53
             }
         }
+        rule 30 {
+            log enable
+            action accept
+            protocol tcp
+            source {
+                address 10.2.0.0/16
+            }
+            destination {
+                fqdn http-transparent-proxy.vd.ingtra.net
+                port 3128
+            }
+        }
     }
     name LAN-OUT {
         enable-default-log
         default-action drop
         rule 10 {
+            log enable
             action accept
             source {
                 group {
@@ -97,6 +119,7 @@ firewall {
             }
         }
         rule 20 {
+            log enable
             action accept
             source {
                 group {
@@ -109,18 +132,36 @@ firewall {
                 }
             }
         }
+        rule 30 {
+            log enable
+            action accept
+            protocol tcp
+            source {
+                fqdn admin-proxy.vd.ingtra.net
+            }
+            destination {
+                port '80,443,4444,5000,8006'
+            }
+        }
+        rule 40 {
+            log enable
+            action accept
+            protocol tcp
+            source {
+                fqdn http-transparent-proxy.vd.ingtra.net
+            }
+            destination {
+                fqdn synology.dv.ingtra.net
+                port 3128
+            }
+        }
     }    
     interface eth0.* {
         out {
-            name ROUTER-OUT
+            name WAN-OUT
         }
     }
-    interface eth1.32 {
-        out {
-            name NETCOM-OUT
-        }
-    }
-    interface eth1.40 {
+    interface eth1.* {
         out {
             name NETCOM-OUT
         }
@@ -128,6 +169,31 @@ firewall {
     interface eth2.* {
         out {
             name LAN-OUT
+        }
+    }
+    interface eth3.* {
+        out {
+            name LAN-OUT
+        }
+    }
+}
+
+nat {
+    destination {
+        rule 100 {
+            inbound-interface eth3.4040
+            protocol tcp
+            source {
+                address !10.2.8.11
+            }
+            destination {
+                address !10.0.0.0/8
+                port 80
+            }
+            translation{
+                address 10.0.33.11
+                port 3128
+            }
         }
     }
 }
@@ -143,9 +209,6 @@ interfaces {
         vif 1 {
             address 10.0.1.2/24
         }
-        vif 4040 {
-            address 10.255.253.1/24
-        }
     }
     ethernet eth1 {
         offload {
@@ -156,6 +219,9 @@ interfaces {
         }
         vif 32 {
             address 10.0.32.1/24
+        }
+        vif 33 {
+            address 10.0.33.1/24
         }
         vif 40 {
             address 10.0.40.1/24
@@ -182,6 +248,17 @@ interfaces {
         }
         vif 117 {
             address 10.1.17.1/24
+        }
+    }
+    ethernet eth3 {
+        offload {
+            gro
+            gso
+            sg
+            tso
+        }
+        vif 4040 {
+            address 10.255.253.1/24
         }
     }
     loopback lo {

@@ -1,0 +1,10 @@
+- name: Create Docker Network
+  community.docker.docker_network:
+    name: vlan234
+    driver: macvlan
+    driver_options:
+      parent: eth1.234
+    ipam_config:
+      - subnet: 10.2.34.0/24
+        iprange: 10.2.34.0/24
+        gateway: 10.2.34.1

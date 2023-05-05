@@ -2,7 +2,7 @@ lxc:
   hosts:
     "orin-nx-1.dv.ingtra.net":
       ansible_user: ing
-      roles:
-        - k0s-worker
-    #"orin-nx-2.dv.ingtra.net":
-    #"orin-nx-3.dv.ingtra.net":
+    "orin-nx-2.dv.ingtra.net":
+      ansible_user: ing
+    "orin-nx-3.dv.ingtra.net":
+      ansible_user: ing

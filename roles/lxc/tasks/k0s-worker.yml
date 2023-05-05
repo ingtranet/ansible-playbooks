@@ -9,13 +9,14 @@
     state: stopped
     container_log: true
     template: download
-    template_options: --dist rockylinux --release 9 --arch {{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}
+    template_options: --dist ubuntu --release focal --arch {{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}
   when: container_exists is failed
 
 - name: Remove config
   ansible.builtin.file:
     path: /var/lib/lxc/k0s-worker/config
     state: absent
+  when: container_exists is failed
 
 - name: Add config
   ansible.builtin.blockinfile:
@@ -28,10 +29,37 @@
       lxc.rootfs.path = dir:/var/lib/lxc/k0s-worker/rootfs
       lxc.include = /usr/share/lxc/config/common.conf
       lxc.start.auto = 1
-      lxc.cgroup2.memory.max = 4294967296
-      lxc.cgroup2.memory.swap.max = 0
+      lxc.cgroup.devices.allow = a
       lxc.cgroup2.devices.allow = a
+      lxc.cgroup.devices.allow = c 195:0 rw
+      lxc.cgroup.devices.allow = c 195:255 rw
+      lxc.cgroup.devices.allow = c 195:254 rw
+      lxc.cgroup.devices.allow = c 509:0 rw
+      lxc.cgroup.devices.allow = c 509:1 rw
+      lxc.cgroup.devices.allow = c 10:144 rw
       lxc.mount.entry = /dev/kmsg dev/kmsg none defaults,bind,create=file
+      lxc.mount.entry = /dev/nvgpu dev/nvgpu none bind,optional,create=dir
+      lxc.mount.entry = /dev/nvhost-as-gpu dev/nvhost-as-gpu none bind,optional,create=file
+      lxc.mount.entry = /dev/nvhost-ctrl dev/nvhost-ctrl none bind,optional,create=file
+      lxc.mount.entry = /dev/nvhost-ctrl-gpu dev/nvhost-ctrl-gpu none bind,optional,create=file
+      lxc.mount.entry = /dev/nvhost-ctrl-nvdla0 dev/nvhost-ctrl-nvdla0 none bind,optional,create=file
+      lxc.mount.entry = /dev/nvhost-ctrl-nvdla1 dev/nvhost-ctrl-nvdla1 none bind,optional,create=file
+      lxc.mount.entry = /dev/nvhost-ctrl-pva0 dev/nvhost-ctrl-pva0 none bind,optional,create=file
+      lxc.mount.entry = /dev/nvhost-dbg-gpu dev/nvhost-dbg-gpu none bind,optional,create=file
+      lxc.mount.entry = /dev/nvhost-gpu dev/nvhost-gpu none bind,optional,create=file
+      lxc.mount.entry = /dev/nvhost-msenc dev/nvhost-msenc none bind,optional,create=file
+      lxc.mount.entry = /dev/nvhost-nvdec dev/nvhost-nvdec none bind,optional,create=file
+      lxc.mount.entry = /dev/nvhost-nvdla0 dev/nvhost-nvdla0 none bind,optional,create=file
+      lxc.mount.entry = /dev/nvhost-nvdla1 dev/nvhost-nvdla1 none bind,optional,create=file
+      lxc.mount.entry = /dev/nvhost-nvjpg dev/nvhost-nvjpg none bind,optional,create=file
+      lxc.mount.entry = /dev/nvhost-nvjpg1 dev/nvhost-nvjpg1 none bind,optional,create=file
+      lxc.mount.entry = /dev/nvhost-ofa dev/nvhost-ofa none bind,optional,create=file
+      lxc.mount.entry = /dev/nvhost-prof-gpu dev/nvhost-prof-gpu none bind,optional,create=file
+      lxc.mount.entry = /dev/nvhost-pva0 dev/nvhost-pva0 none bind,optional,create=file
+      lxc.mount.entry = /dev/nvhost-vic dev/nvhost-vic none bind,optional,create=file
+      lxc.mount.entry = /dev/nvidiactl dev/nvidiactl none bind,optional,create=file
+      lxc.mount.entry = /dev/nvidia0 dev/nvidia0 none bind,optional,create=file
+      lxc.mount.entry = /dev/nvmap dev/nvmap none bind,optional,create=file
       lxc.mount.auto = proc:rw sys:rw cgroup
       lxc.apparmor.profile = unconfined
       lxc.net.0.type = vlan
@@ -40,15 +68,19 @@
       lxc.net.0.vlan.id = 232
       lxc.net.0.ipv4.address = 10.2.32.244/24
       lxc.net.0.ipv4.gateway = 10.2.32.1
+  register: change_config
 
 - name: Initialize Container (1)
   community.general.lxc_container:
     name: k0s-worker
     state: started
     container_command: |
-      dnf remove -y NetworkManager
+      apt remove -y netplan.io
+      systemctl disable systemd-resolved
+      systemctl stop systemd-resolved
       mkdir /root/.ssh
       echo "ssh-rsa {{ secret_ssh_public_key }}" > /root/.ssh/authorized_keys
+      rm -rf /etc/resolv.conf
       cat << __EOF > /etc/resolv.conf
       search vd.ingtra.net
       nameserver 10.0.32.11
@@ -59,13 +91,15 @@
   community.general.lxc_container:
     name: k0s-worker
     state: restarted
+  when: container_exists is failed or change_config['changed']
 
 - name: Initialize Container (3)
   community.general.lxc_container:
     name: k0s-worker
     container_command: |
-      dnf upgrade -y
-      dnf install -y openssh-server vim
+      apt update -y && apt upgrade -y
+      apt install -y openssh-server vim
       echo "PermitRootLogin yes" > /etc/ssh/sshd_config.d/permit-root-login.conf
       systemctl enable sshd
       systemctl start sshd
+  when: container_exists is failed

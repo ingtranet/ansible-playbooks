@@ -1,26 +1,27 @@
-#- name: Initialize for LXC
-#  ansible.builtin.import_tasks: init_lxc.yml
-#  when: node_type == 'lxc'
-
-- name: Install K0S
-  ansible.builtin.shell:
-    cmd: curl -sSLf https://get.k0s.sh | sudo K0S_VERSION={{ k0s_version }} sh
-    creates: "{{ '/never-exists' if force_reinstall else '/usr/local/bin/k0s' }}"
-
 - name: Create /etc/k0s
   ansible.builtin.file:
-    path: /etc/k0s
+    path: /etc/k0s/containerd.d
     state: directory
 
-#- name: Copy containerd config
-#  ansible.builtin.template:
-#    src: containerd.toml
-#    dest: /etc/k0s/containerd.toml
+- name: Copy containerd import config
+  ansible.builtin.copy:
+    src: containerd/{{ containerd_profile }}_imports.toml
+    dest: /etc/k0s/containerd.d/imports.toml
+
+- name: Copy containerd config
+  ansible.builtin.copy:
+    src: "containerd/{{ item }}.toml"
+    dest: /etc/k0s/containerd_{{ item }}.toml
+  loop:
+    - mirrors
+
+- name: Install K0S
+  ansible.builtin.include_tasks: install_{{ node_type }}_k0s.yml
 
 - name: Install controlplane
-  ansible.builtin.import_tasks: install_controlplane.yml
+  ansible.builtin.include_tasks: install_{{ node_type }}_controlplane.yml
   when: role == 'controlplane'
 
 - name: Install worker
-  ansible.builtin.import_tasks: install_worker.yml
+  ansible.builtin.include_tasks: install_{{ node_type }}_worker.yml
   when: role == 'worker'

@@ -1,0 +1,17 @@
+- name: Install redsocks
+  ansible.builtin.apt:
+    name:
+      - redsocks
+    state: present
+
+- name: Template config
+  ansible.builtin.template:
+    src: redsocks.conf
+    dest: /etc/redsocks.conf
+
+- name: Start and enable service
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: redsocks
+    enabled: true
+    state: restarted

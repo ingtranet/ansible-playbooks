@@ -1,0 +1,6 @@
+http_transparent_proxy:
+  hosts:
+    "http-transparent-proxy.vd.ingtra.net":
+      upstream_proxy: synology.dv.ingtra.net
+      upstream_proxy_port: 3128
+      port: 3128

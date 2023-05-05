@@ -4,4 +4,6 @@
   become: true
   become_method: sudo
   roles:
+    - role: docker
+      when: node_type == 'docker'
     - role: k0s

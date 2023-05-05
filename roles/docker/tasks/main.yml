@@ -4,13 +4,14 @@
 
 - name: Install pip
   ansible.builtin.shell:
-    cmd: python3 -m ensurepip --upgrade
+    cmd: python3 -m ensurepip
 
 - name: Install docker python client
   ansible.builtin.pip:
     name:
       - docker
       - docker-compose
+      - urllib3<2
     state: present
 
 - name: Start docker

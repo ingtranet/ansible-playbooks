@@ -1,12 +1,13 @@
 k0s:
   hosts:
-    "10.2.32.251":
+    "k0s-controlplane.vd.ingtra.net":
       role: controlplane
-      node_type: lxc
-    "10.2.32.252":
+    "k0s-worker-x86-1.vd.ingtra.net":
       role: worker
-      node_type: lxc
+      node_type: default
   vars:
     k0s_version: v1.27.1+k0s.0
+    node_type: default
+    containerd_profile: default
     force_reinstall: false
-    token_issuer: 10.2.32.251
+    token_issuer: k0s-controlplane.vd.ingtra.net

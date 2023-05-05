@@ -1,0 +1,4 @@
+- name: Install K0S
+  ansible.builtin.shell:
+    cmd: curl -sSLf https://get.k0s.sh | sudo K0S_VERSION={{ k0s_version }} sh
+    creates: "{{ '/never-exists' if force_reinstall else '/usr/local/bin/k0s' }}"
