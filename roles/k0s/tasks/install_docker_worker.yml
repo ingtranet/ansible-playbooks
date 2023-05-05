@@ -1,8 +1,10 @@
 - name: Start Worker
   community.docker.docker_container:
     name: k0s-worker
-    hostname: "{{ inventory_hostname_short }}"
+    hostname: "{{ k0s_hostname }}"
     image: harbor.ingtra.net/docker.io/k0sproject/k0s:{{ k0s_version.replace('+', '-') }}
+    env:
+      NVIDIA_VISIBLE_DEVICES: all
     entrypoint:
       - /bin/bash
       - -c
@@ -11,10 +13,11 @@
         sed -e 's/127.0.0.11/10.0.32.11/g' /etc/resolv.conf | tee /etc/resolv.conf && \
         exec /sbin/tini -- /bin/sh /entrypoint.sh k0s worker {{ hostvars[token_issuer]['worker_join_token']['stdout'] }}
     privileged: true
-    cgroupns_mode: host
+    #cgroupns_mode: host
+    runtime: nvidia
     networks:
       - name: vlan234
-        ipv4_address: 10.2.34.111
+        ipv4_address: "{{ k0s_ip_address }}"
     dns_servers:
       - "10.0.32.11"
     dns_search_domains:
@@ -24,5 +27,6 @@
     volumes:
       - "/etc/k0s:/etc/k0s"
       - "/var/lib/k0s:/var/lib/k0s"
+      - "/usr/bin/nvidia-container-runtime:/usr/bin/nvidia-container-runtime"
     state: started
 

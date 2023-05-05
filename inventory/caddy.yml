@@ -3,5 +3,8 @@ caddy:
     "admin-proxy.vd.ingtra.net":
       config_path: /root/caddy
       caddy_role: admin_gateway
+    "external-reverse-proxy.vd.ingtra.net":
+      config_path: /root/caddy
+      caddy_role: external_reverse_proxy
   vars:
     caddy_version: 2.6.4

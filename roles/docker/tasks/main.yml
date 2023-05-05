@@ -2,9 +2,19 @@
   ansible.builtin.import_tasks: centos.yml
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'Rocky'
 
-- name: Install pip
-  ansible.builtin.shell:
-    cmd: python3 -m ensurepip
+- name: Install python
+  ansible.builtin.dnf:
+    name:
+      - python3
+      - python3-pip
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Rocky'
+
+- name: Install python
+  ansible.builtin.apt:
+    name:
+      - python3
+      - python3-pip
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
 
 - name: Install docker python client
   ansible.builtin.pip:

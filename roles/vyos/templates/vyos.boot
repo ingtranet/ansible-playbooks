@@ -29,6 +29,14 @@ firewall {
         network-group MULTIMEDIA {
             network 10.1.16.0/24
         }
+        network-group MINI-DATA-CENTER {
+            network 10.2.0.0/16
+        }        
+        domain-group FOWARD-TO-EXTERNAL-PROXY {
+            address ports.ubuntu.com
+            address ftp.kr.debian.org
+            address archive.ubuntu.com
+        }
     }
     name WAN-OUT {
         enable-default-log
@@ -98,11 +106,25 @@ firewall {
             action accept
             protocol tcp
             source {
-                address 10.2.0.0/16
+                group {
+                    network-group MINI-DATA-CENTER 
+                }
             }
             destination {
                 fqdn http-transparent-proxy.vd.ingtra.net
                 port 3128
+            }
+        }
+        rule 40 {
+            log enable
+            action accept
+            protocol tcp
+            source {
+                fqdn synology.dv.ingtra.net
+            }
+            destination {
+                fqdn external-reverse-proxy.vd.ingtra.net
+                port 80
             }
         }
     }
@@ -193,6 +215,19 @@ nat {
             translation{
                 address 10.0.33.11
                 port 3128
+            }
+        }
+        rule 200 {
+            inbound-interface eth3.4040
+            protocol tcp
+            destination {
+                group {
+                    domain-group FOWARD-TO-EXTERNAL-PROXY
+                }
+                port 80
+            }
+            translation {
+                address 10.0.40.12
             }
         }
     }

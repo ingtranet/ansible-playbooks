@@ -3,7 +3,7 @@
     name: vlan234
     driver: macvlan
     driver_options:
-      parent: eth1.234
+      parent: eth0.234
     ipam_config:
       - subnet: 10.2.34.0/24
         iprange: 10.2.34.0/24
