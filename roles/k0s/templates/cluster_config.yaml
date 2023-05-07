@@ -32,3 +32,12 @@ spec:
     type: etcd
     #kine:
     #  dataSource: "mysql://k0s:k0s@tcp(10.2.33.13)/k0s"
+  workerProfiles:
+    - name: default
+      values:
+        shutdowngraceperiod: 300s
+        shutdownGracePeriodCriticalPods: 60s
+  featureGates:
+    - name: GracefulNodeShutdown
+      enabled: true
+      components: ["kubelet"]
