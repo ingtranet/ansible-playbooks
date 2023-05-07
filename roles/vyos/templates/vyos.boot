@@ -292,6 +292,9 @@ interfaces {
             sg
             tso
         }
+        vif 234 {
+            address 10.2.34.254/24
+        }
         vif 4040 {
             address 10.255.253.1/24
         }
@@ -380,6 +383,21 @@ protocols {
         }
         route 10.2.0.0/16 {
             next-hop 10.255.253.2
+        }
+    }
+    bgp {
+        system-as 64521
+        parameters {
+            router-id 10.2.34.254
+        }
+        neighbor 10.2.34.51 {
+            remote-as internal
+        }
+        neighbor 10.2.34.52 {
+            remote-as internal
+        }
+        neighbor 10.2.34.53 {
+            remote-as internal
         }
     }
 }
