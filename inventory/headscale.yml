@@ -1,5 +1,0 @@
-headscale:
-  hosts:
-    "gateway.ext.ingtra.net":
-  vars:
-    headscale_version: 0.21.0

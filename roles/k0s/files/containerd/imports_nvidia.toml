@@ -1,1 +1,0 @@
-imports = ["/etc/k0s/containerd_mirrors.toml", "/etc/k0s/containerd_nvidia.toml"]

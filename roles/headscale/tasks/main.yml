@@ -71,6 +71,7 @@
     src: /var/run/headscale/headscale.sock
     path: /var/run/headscale.sock
     state: link
+    force: yes
     owner: headscale
     group: headscale
 

@@ -1,0 +1,15 @@
+tailscale:
+  hosts:
+    "tailscale-router.vd.ingtra.net":
+      user: router
+      additionalConfigs:
+        advertise-routes: 10.0.0.0/19
+        accept-routes:
+    "tailscale-exit-cookieshake.vd.ingtra.net":
+      user: router
+      additionalConfigs:
+        advertise-exit-node:
+  vars:
+    headscale_url: https://headscale.ingtra.net
+    additionalConfigs: {}
+    

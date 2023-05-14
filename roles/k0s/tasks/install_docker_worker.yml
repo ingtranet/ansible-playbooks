@@ -2,14 +2,16 @@
   community.docker.docker_container:
     name: k0s-worker
     hostname: "{{ k0s_hostname }}"
-    image: harbor.ingtra.net/docker.io/ingtranet/k0s:v1.27.1-k0s.0-l4t-r35.1.0
+    image: harbor.ingtra.net/docker.io/ingtranet/k0s:v1.27.1-k0s.0-l4t-jetpack-r35.3.1
     pull: true
     env:
       NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: all
       DNS_SERVER: 10.0.32.11
     command: k0s worker {{ hostvars[token_issuer]['worker_join_token']['stdout'] }}
     privileged: true
-    cgroupns_mode: host
+    capabilities:
+      - ALL
     runtime: nvidia
     networks:
       - name: vlan234
@@ -25,4 +27,5 @@
       - "/var/lib/k0s:/var/lib/k0s"
       #- "/usr/bin/nvidia-container-runtime:/usr/bin/nvidia-container-runtime"
     state: started
+    recreate: true
 

@@ -1,0 +1,46 @@
+- name: Create .pve-ignore.resolv.conf
+  ansible.builtin.file:
+    path: /etc/.pve-ignore.resolv.conf
+    state: touch
+
+- name: Allow IP Forward
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: true
+    sysctl_file: /etc/sysctl.d/headscale.conf
+    state: present
+    reload: true
+  when: user == 'router'
+
+- name: Install dnf-plugins-core
+  ansible.builtin.dnf:
+    name:
+      - dnf-plugins-core
+    state: present
+
+- name: Add tailscale repository
+  ansible.builtin.shell:
+    cmd: dnf config-manager --add-repo https://pkgs.tailscale.com/stable/centos/9/tailscale.repo
+    creates: /etc/yum.repos.d/tailscale.repo
+
+- name: Install tailscale
+  ansible.builtin.dnf:
+    name:
+      - tailscale
+    state: latest
+
+- name: Start tailscale
+  ansible.builtin.systemd:
+    name: tailscaled
+    enabled: true
+    state: started
+
+- name: Up tailscale
+  ansible.builtin.shell:
+    cmd: |
+      tailscale up --login-server {{ headscale_url }} --authkey {{ secret_headscale_router_key }} \
+        {% for k, v in additionalConfigs.items() %}
+        --{{ k }} {{ v }} \
+        {% endfor %}
+        ;

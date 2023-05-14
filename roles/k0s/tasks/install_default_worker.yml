@@ -9,4 +9,3 @@
   ansible.builtin.shell:
     cmd: |
       sudo systemctl start k0sworker
-

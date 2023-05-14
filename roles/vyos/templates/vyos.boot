@@ -71,6 +71,19 @@ firewall {
             }
         }
     }
+    name HEADSCALE-OUT {
+        enable-default-log
+        default-action drop
+        rule 10 {
+            log enable
+            action accept
+            source {
+                group {
+                    network-group ADMIN
+                }
+            }
+        }
+    }
     name NETCOM-OUT {
         enable-default-log
         default-action drop
@@ -178,9 +191,14 @@ firewall {
             }
         }
     }    
-    interface eth0.* {
+    interface eth0.1 {
         out {
             name WAN-OUT
+        }
+    }
+    interface eth0.96 {
+        out {
+            name HEADSCALE-OUT
         }
     }
     interface eth1.* {
@@ -243,6 +261,9 @@ interfaces {
         }
         vif 1 {
             address 10.0.1.2/24
+        }
+        vif 96 {
+            address 10.0.96.1/24
         }
     }
     ethernet eth1 {

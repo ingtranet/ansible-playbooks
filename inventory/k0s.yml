@@ -11,28 +11,18 @@ k0s:
     "orin-nx-1.dv.ingtra.net":
       ansible_user: ing
       role: worker
-      node_type: docker
       containerd_profile: nvidia
-      k0s_hostname: k0s-worker-arm-1
-      k0s_ip_address: 10.2.34.51
     "orin-nx-2.dv.ingtra.net":
       ansible_user: ing
       role: worker
-      node_type: docker
       containerd_profile: nvidia
-      k0s_hostname: k0s-worker-arm-2
-      k0s_ip_address: 10.2.34.52
     "orin-nx-3.dv.ingtra.net":
       ansible_user: ing
       role: worker
-      node_type: docker
       containerd_profile: nvidia
-      k0s_hostname: k0s-worker-arm-3
-      k0s_ip_address: 10.2.34.53
   vars:
     k0s_version: v1.27.1+k0s.0
     node_type: default
     containerd_profile: default
     force_reinstall: false
     token_issuer: k0s-controlplane.vd.ingtra.net
-    k0s_hostname: ""
