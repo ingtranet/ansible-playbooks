@@ -41,6 +41,6 @@
     cmd: |
       tailscale up --login-server {{ headscale_url }} --authkey {{ secret_headscale_router_key }} \
         {% for k, v in additionalConfigs.items() %}
-        --{{ k }} {{ v }} \
+        --{{ k }}={{ v }} \
         {% endfor %}
         ;

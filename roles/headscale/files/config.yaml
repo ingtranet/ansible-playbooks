@@ -212,7 +212,7 @@ dns_config:
 
   # List of DNS servers to expose to clients.
   nameservers:
-    - 10.0.32.12
+    - 10.53.53.53
 
   # NextDNS (see https://tailscale.com/kb/1218/nextdns/).
   # "abc123" is example NextDNS ID, replace with yours.

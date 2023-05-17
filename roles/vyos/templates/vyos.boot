@@ -14,10 +14,18 @@ firewall {
         }
     }
     group {
+        address-group INTERNAL-DNS {
+            address 10.0.32.11
+            address 10.0.32.12
+            address 10.0.32.14
+        }
         network-group RFC1918 {
             network 10.0.0.0/8
             network 172.16.0.0/12
             network 192.168.0.0/16
+        }
+        network-group TAILSCALE-NODE {
+            network 10.0.96.0/24
         }
         network-group ADMIN {
             network 10.0.0.0/24
@@ -31,11 +39,17 @@ firewall {
         }
         network-group MINI-DATA-CENTER {
             network 10.2.0.0/16
-        }        
+        }
+        network-group USE-JP-DNS {
+            network 10.0.96.22/32
+        } 
         domain-group FOWARD-TO-EXTERNAL-PROXY {
             address ports.ubuntu.com
             address ftp.kr.debian.org
             address archive.ubuntu.com
+        }
+        port-group TAILSCALE-UDP {
+            port 41641
         }
     }
     name WAN-OUT {
@@ -71,7 +85,7 @@ firewall {
             }
         }
     }
-    name HEADSCALE-OUT {
+    name TAILSCALE-OUT {
         enable-default-log
         default-action drop
         rule 10 {
@@ -80,6 +94,21 @@ firewall {
             source {
                 group {
                     network-group ADMIN
+                }
+            }
+        }
+        rule 20 {
+            log enable
+            action accept
+            protocol udp
+            source {
+                group {
+                    port-group TAILSCALE-UDP
+                }
+            }
+            destination {
+                group {
+                    network-group TAILSCALE-NODE
                 }
             }
         }
@@ -101,16 +130,9 @@ firewall {
             action accept
             protocol udp
             destination {
-                fqdn unbound.vd.ingtra.net
-                port 53
-            }
-        }
-        rule 21 {
-            log enable
-            action accept
-            protocol udp
-            destination {
-                fqdn adguard-home.vd.ingtra.net
+                group {
+                    address-group INTERNAL-DNS
+                }
                 port 53
             }
         }
@@ -190,6 +212,17 @@ firewall {
                 port 3128
             }
         }
+        rule 50 {
+            log enable
+            action accept
+            protocol udp
+            source {
+                group {
+                    network-group TAILSCALE-NODE
+                    port-group TAILSCALE-UDP
+                }
+            }
+        }
     }    
     interface eth0.1 {
         out {
@@ -198,7 +231,7 @@ firewall {
     }
     interface eth0.96 {
         out {
-            name HEADSCALE-OUT
+            name TAILSCALE-OUT
         }
     }
     interface eth1.* {
@@ -211,17 +244,55 @@ firewall {
             name LAN-OUT
         }
     }
-    interface eth3.* {
-        out {
-            name LAN-OUT
-        }
-    }
 }
 
 nat {
+    source {
+        rule 10 {
+            outbound-interface any
+            protocol udp
+            source {
+                address 10.0.32.0/24
+            }
+            destination {
+                address 10.53.53.53
+                port 53
+            }
+            translation {
+                address masquerade
+            }
+        }
+    }
     destination {
+        rule 9 {
+            inbound-interface any
+            protocol udp
+            source {
+                group {
+                    network-group USE-JP-DNS
+                }
+            }
+            destination {
+                address 10.53.53.53
+                port 53
+            }
+            translation {
+                address 10.0.32.14
+            }
+        }
+        rule 10 {
+            inbound-interface any
+            protocol udp
+            destination {
+                address 10.53.53.53
+                port 53
+            }
+            translation {
+                address 10.0.32.12
+            }
+        }
         rule 100 {
-            inbound-interface eth3.4040
+            inbound-interface eth2.4040
             protocol tcp
             source {
                 address !10.2.8.11
@@ -230,13 +301,13 @@ nat {
                 address !10.0.0.0/8
                 port 80
             }
-            translation{
+            translation {
                 address 10.0.33.11
                 port 3128
             }
         }
         rule 200 {
-            inbound-interface eth3.4040
+            inbound-interface eth2.4040
             protocol tcp
             destination {
                 group {
@@ -305,14 +376,6 @@ interfaces {
         vif 117 {
             address 10.1.17.1/24
         }
-    }
-    ethernet eth3 {
-        offload {
-            gro
-            gso
-            sg
-            tso
-        }
         vif 234 {
             address 10.2.34.254/24
         }
@@ -329,7 +392,7 @@ service {
         shared-network-name resident {
             subnet 10.1.0.0/24 {
                 default-router 10.1.0.1
-                name-server 10.0.32.12
+                name-server 10.53.53.53
                 range 0 {
                     start 10.1.0.100
                     stop 10.1.0.199
@@ -339,7 +402,7 @@ service {
         shared-network-name nya {
             subnet 10.1.1.0/24 {
                 default-router 10.1.1.1
-                name-server 10.0.32.12
+                name-server 10.53.53.53
                 range 0 {
                     start 10.1.1.100
                     stop 10.1.1.199
@@ -349,7 +412,7 @@ service {
         shared-network-name guest {
             subnet 10.1.2.0/24 {
                 default-router 10.1.2.1
-                name-server 10.0.32.12
+                name-server 10.53.53.53
                 range 0 {
                     start 10.1.2.100
                     stop 10.1.2.199
@@ -359,7 +422,7 @@ service {
         shared-network-name multimedia {
             subnet 10.1.16.0/24 {
                 default-router 10.1.16.1
-                name-server 10.0.32.12
+                name-server 10.53.53.53
                 range 0 {
                     start 10.1.16.100
                     stop 10.1.16.199
@@ -369,7 +432,7 @@ service {
         shared-network-name iot {
             subnet 10.1.17.0/24 {
                 default-router 10.1.17.1
-                name-server 10.0.32.12
+                name-server 10.53.53.53
                 range 0 {
                     start 10.1.17.100
                     stop 10.1.17.199
@@ -405,6 +468,9 @@ protocols {
         route 10.2.0.0/16 {
             next-hop 10.255.253.2
         }
+        route 100.127.0.0/16 {
+            next-hop 10.0.96.11
+        }
     }
     bgp {
         system-as 64521
@@ -439,7 +505,7 @@ system {
         }
     }
     host-name vyos
-    name-server 10.0.32.11
+    name-server 10.0.32.12
     name-server 1.1.1.1
     name-server 1.0.0.1
     login {

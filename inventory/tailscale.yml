@@ -1,14 +1,19 @@
 tailscale:
   hosts:
-    "tailscale-router.vd.ingtra.net":
+    "tailscale-home.vd.ingtra.net":
       user: router
       additionalConfigs:
-        advertise-routes: 10.0.0.0/19
-        accept-routes:
-    "tailscale-exit-cookieshake.vd.ingtra.net":
+        advertise-routes: 10.0.0.0/12
+        snat-subnet-routes: false
+        accept-routes: true
+    "tailscale-exit.vd.ingtra.net":
       user: router
       additionalConfigs:
-        advertise-exit-node:
+        advertise-exit-node: true
+    "tailscale-exit-jp.vd.ingtra.net":
+      user: router
+      additionalConfigs:
+        advertise-exit-node: true
   vars:
     headscale_url: https://headscale.ingtra.net
     additionalConfigs: {}
