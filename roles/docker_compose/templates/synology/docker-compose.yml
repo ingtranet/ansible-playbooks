@@ -111,6 +111,33 @@ services:
         soft: -1
         hard: -1
 
+  redis:
+    container_name: ingtranet-redis
+    image: redis:7.0.11
+    restart: always
+    volumes:
+      - type: bind
+        source: /volume1/docker/redis/data
+        target: /data
+    networks:
+      ovs_docker317:
+        ipv4_address: 10.2.33.17
+
+  kafka:
+    container_name: kafka
+    image: bitnami/kafka:3.4.0
+    restart: always
+    environment:
+      "ALLOW_PLAINTEXT_LISTENER": "yes"
+      "KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE": "true"
+    volumes:
+      - type: bind
+        source: /volume1/docker/kafka/data
+        target: /bitnami
+    networks:
+      ovs_docker317:
+        ipv4_address: 10.2.33.18
+
 networks:
   ovs_docker317:
     name: ovs_docker233

@@ -47,6 +47,7 @@ firewall {
             address ports.ubuntu.com
             address ftp.kr.debian.org
             address archive.ubuntu.com
+            address security.ubuntu.com
         }
         port-group TAILSCALE-UDP {
             port 41641

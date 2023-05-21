@@ -39,7 +39,7 @@ http://ftp.kr.debian.org {
     }
 }
 
-http://archive.ubuntu.com {
+http://archive.ubuntu.com, http://security.ubuntu.com {
     reverse_proxy {
         header_up Host "mirror.misakamikoto.network"
         to http://mirror.misakamikoto.network
