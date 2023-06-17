@@ -30,6 +30,11 @@ firewall {
         network-group ADMIN {
             network 10.0.0.0/24
             network 10.1.0.0/24
+            network 100.127.0.3/32
+            network 100.127.0.4/32
+            network 100.127.0.5/32
+            network 100.127.0.7/32
+            network 100.127.0.8/32
         }
         network-group USER {
             network 10.1.0.0/20
