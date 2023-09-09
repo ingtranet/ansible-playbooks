@@ -18,7 +18,7 @@ services:
 
   seaweedfs:
     container_name: seaweedfs
-    image: chrislusf/seaweedfs:3.39_large_disk
+    image: chrislusf/seaweedfs:3.55_large_disk
     command: server -master.volumeSizeLimitMB 30720 -volume.max 1000 -options /etc/seaweedfs/options
     restart: always
     volumes:
