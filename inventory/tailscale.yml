@@ -15,6 +15,5 @@ tailscale:
       additionalConfigs:
         advertise-exit-node: true
   vars:
-    headscale_url: https://headscale.ingtra.net
     additionalConfigs: {}
     

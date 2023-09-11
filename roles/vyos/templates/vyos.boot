@@ -30,11 +30,9 @@ firewall {
         network-group ADMIN {
             network 10.0.0.0/24
             network 10.1.0.0/24
-            network 100.127.0.3/32
-            network 100.127.0.4/32
-            network 100.127.0.5/32
-            network 100.127.0.7/32
-            network 100.127.0.8/32
+            network 100.73.20.22/32
+            network 100.76.185.14/32
+            network 100.70.117.135/32
         }
         network-group USER {
             network 10.1.0.0/20
@@ -474,7 +472,7 @@ protocols {
         route 10.2.0.0/16 {
             next-hop 10.255.253.2
         }
-        route 100.127.0.0/16 {
+        route 100.64.0.0/10 {
             next-hop 10.0.96.11
         }
     }

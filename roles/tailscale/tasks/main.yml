@@ -39,7 +39,7 @@
 - name: Up tailscale
   ansible.builtin.shell:
     cmd: |
-      tailscale up --login-server {{ headscale_url }} --authkey {{ secret_headscale_router_key }} \
+      tailscale up --authkey {{ secret_tailscale_authkey }} --reset \
         {% for k, v in additionalConfigs.items() %}
         --{{ k }}={{ v }} \
         {% endfor %}
