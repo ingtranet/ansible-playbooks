@@ -33,6 +33,7 @@ firewall {
             network 100.73.20.22/32
             network 100.76.185.14/32
             network 100.70.117.135/32
+            network 100.85.123.17/32
         }
         network-group USER {
             network 10.1.0.0/20
