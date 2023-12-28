@@ -3,15 +3,6 @@
 	log {
 	    level info
 	}
-
-    storage s3 {
-        host "10.2.33.12:8333"
-        bucket "caddy"
-        access_id "caddy"
-        secret_key "caddysecret"
-        prefix "ssl"
-        insecure true
-    }
 }
 
 (cf_tls) {
@@ -28,14 +19,14 @@
 harbor.ingtra.net {
     import cf_tls
 	reverse_proxy {
-	    to 10.2.33.201:8080
+	    to 10.3.65.201:8080
 	}
 }
 
 master.sf.ingtra.net {
     import cf_tls
     reverse_proxy {
-		to 10.2.33.12:9333
+		to 10.3.65.12:9333
 	}
 }
 
@@ -45,14 +36,14 @@ filer.sf.ingtra.net {
 		?Content-Type    application/octet-stream
 	}
 	reverse_proxy {
-		to 10.2.33.12:8888
+		to 10.3.65.12:8888
 	}
 }
 
 volume.sf.ingtra.net {
 	import cf_tls
 	reverse_proxy {
-		to 10.2.33.12:8080
+		to 10.3.65.12:8080
 	}
 }
 
@@ -62,14 +53,14 @@ s3.sf.ingtra.net {
 		?Content-Type    application/octet-stream
 	}
 	reverse_proxy {
-		to 10.2.33.12:8333
+		to 10.3.65.12:8333
 	}
 }
 
 webdav.sf.ingtra.net {
 	import cf_tls
 	reverse_proxy {
-		to 10.2.33.12:7333
+		to 10.3.65.12:7333
 	}
 }
 
@@ -79,6 +70,6 @@ webdav.sf.ingtra.net {
 		?Content-Type    application/octet-stream
 	}
 	reverse_proxy {
-		to 10.2.33.12:8333
+		to 10.3.65.12:8333
 	}
 }

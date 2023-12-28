@@ -12,13 +12,16 @@ services:
       - type: bind
         source: "{{ config_path }}/{{ item }}/caddy/Caddyfile"
         target: /etc/caddy/Caddyfile
+      - type: bind
+        source: /volume1/docker/caddy
+        target: /data/caddy
     networks:
-      ovs_docker317:
-        ipv4_address: 10.2.33.11
+      vlan365:
+        ipv4_address: 10.3.65.11
 
   seaweedfs:
     container_name: seaweedfs
-    image: chrislusf/seaweedfs:3.55_large_disk
+    image: chrislusf/seaweedfs:3.59_large_disk
     command: server -master.volumeSizeLimitMB 30720 -volume.max 1000 -options /etc/seaweedfs/options
     restart: always
     volumes:
@@ -29,123 +32,17 @@ services:
         source: /volume1/seaweedfs/data
         target: /data
     networks:
-      ovs_docker317:
-        ipv4_address: 10.2.33.12
-
-  mysql:
-    container_name: mysql
-    image: mysql:8.0.32
-    environment:
-      MYSQL_ROOT_PASSWORD: mysql
-    restart: always
-    volumes:
-      - type: bind
-        source: /volume1/docker/mysql/config
-        target: /etc/mysql/conf.d
-      - type: bind
-        source: /volume1/docker/mysql/data
-        target: /var/lib/mysql
-    networks:
-      ovs_docker317:
-        ipv4_address: 10.2.33.13
-
-  postgresql:
-    container_name: postgresql
-    image: postgres:15.1
-    environment:
-      POSTGRES_PASSWORD: postgresql
-    restart: always
-    volumes:
-      - type: bind
-        source: /volume1/docker/postgresql/data
-        target: /var/lib/postgresql/data
-    networks:
-      ovs_docker317:
-        ipv4_address: 10.2.33.14
-
-  clickhouse:
-    container_name: clickhouse
-    image: clickhouse/clickhouse-server:22.8.15.23
-    restart: always
-    mem_limit: 2g
-    volumes:
-      - type: bind
-        source: /volume1/docker/clickhouse/config
-        target: /etc/clickhouse-server/config.d
-      - type: bind
-        source: /volume1/docker/clickhouse/data
-        target: /var/lib/clickhouse
-    networks:
-      ovs_docker317:
-        ipv4_address: 10.2.33.15
-    cap_add:
-      - SYS_NICE
-      - NET_ADMIN
-      - IPC_LOCK
-    ulimits:
-      nofile:
-        soft: 262144
-        hard: 262144
-
-  opensearch:
-    container_name: opensearch
-    image: opensearchproject/opensearch:2.6.0
-    restart: always
-    environment:
-      "discovery.type": "single-node"
-      "DISABLE_INSTALL_DEMO_CONFIG": "true"
-      "DISABLE_SECURITY_PLUGIN": "true"
-      "OPENSEARCH_JAVA_OPTS": "-Xms1024m -Xmx2048m"
-    volumes:
-      - type: bind
-        source: /volume1/docker/opensearch/data
-        target: /usr/share/opensearch/data
-    networks:
-      ovs_docker317:
-        ipv4_address: 10.2.33.16
-    ulimits:
-      nofile:
-        soft: 262144
-        hard: 262144
-      memlock:
-        soft: -1
-        hard: -1
-
-  redis:
-    container_name: ingtranet-redis
-    image: redis:7.0.11
-    restart: always
-    volumes:
-      - type: bind
-        source: /volume1/docker/redis/data
-        target: /data
-    networks:
-      ovs_docker317:
-        ipv4_address: 10.2.33.17
-
-  kafka:
-    container_name: kafka
-    image: bitnami/kafka:3.4.0
-    restart: always
-    environment:
-      "ALLOW_PLAINTEXT_LISTENER": "yes"
-      "KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE": "true"
-    volumes:
-      - type: bind
-        source: /volume1/docker/kafka/data
-        target: /bitnami
-    networks:
-      ovs_docker317:
-        ipv4_address: 10.2.33.18
+      vlan365:
+        ipv4_address: 10.3.65.12
 
 networks:
-  ovs_docker317:
-    name: ovs_docker233
+  vlan365:
+    name: vlan365
     driver: macvlan
     driver_opts:
-      parent: ovs_docker233
+      parent: ovs_vlan365
     ipam:
       config:
-        - subnet: 10.2.33.0/24
-          ip_range: 10.2.33.0/24
-          gateway: 10.2.33.1
+        - subnet: 10.3.65.0/24
+          ip_range: 10.3.65.0/24
+          gateway: 10.3.65.1
