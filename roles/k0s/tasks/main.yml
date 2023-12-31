@@ -5,8 +5,9 @@
 
 - name: Copy containerd import config
   ansible.builtin.copy:
-    src: containerd/{{ containerd_profile }}.toml
-    dest: /etc/k0s/containerd.toml
+    src: containerd/{{ item }}.toml
+    dest: //etc/k0s/containerd.d/{{ item }}.toml
+  loop: "{{ containerd_profiles }}"
 
 - name: Install K0S
   ansible.builtin.include_tasks: install_{{ node_type }}_k0s.yml

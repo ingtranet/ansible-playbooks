@@ -6,16 +6,16 @@ spec:
   api:
     address: {{ ansible_eth0.ipv4.address }}
     sans:
-      - 10.2.34.11
       - 10.160.0.1
+      - {{ ansible_eth0.ipv4.address }}
       - {{ inventory_hostname }}
-      - k0s-api.ingtra.net
+      - k8s-ga-api.hp.ingtra.net
   extensions:
     helm:
       charts:
         - name: argocd
           chartname: argo/argo-cd
-          version: 5.29.1
+          version: 5.35.0
           namespace: argocd
           values: |
             server:
@@ -25,13 +25,12 @@ spec:
         - name: argo
           url: https://argoproj.github.io/argo-helm
   network:
-    clusterDomain: k0.ingtra.net
+    provider: calico
+    clusterDomain: kg.ingtra.net
     podCIDR: 10.160.32.0/19
     serviceCIDR: 10.160.0.0/19
   storage:
     type: etcd
-    #kine:
-    #  dataSource: "mysql://k0s:k0s@tcp(10.2.33.13)/k0s"
   workerProfiles:
     - name: default
       values:

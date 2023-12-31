@@ -21,7 +21,7 @@
 
 - name: Create join token
   ansible.builtin.shell:
-    cmd: sudo /usr/local/bin/k0s && sudo /usr/local/bin/k0s token create --role=worker > /etc/k0s/worker_join_token
+    cmd: sudo /usr/local/bin/k0s && sleep 10 && sudo /usr/local/bin/k0s token create --role=worker > /etc/k0s/worker_join_token
     creates: /etc/k0s/worker_join_token
   when: inventory_hostname == token_issuer
   register: create_token
