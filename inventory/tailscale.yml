@@ -1,19 +1,14 @@
 tailscale:
   hosts:
     "tailscale-home.vd.ingtra.net":
-      user: router
+      role: router
       additionalConfigs:
-        advertise-routes: 10.0.0.0/12
+        advertise-routes: 10.0.0.0/16,10.1.0.0/16,10.2.0.0/16,10.3.0.0/16
         snat-subnet-routes: false
         accept-routes: true
     "tailscale-exit.vd.ingtra.net":
-      user: router
-      additionalConfigs:
-        advertise-exit-node: true
-    "tailscale-exit-jp.vd.ingtra.net":
-      user: router
+      role: router
       additionalConfigs:
         advertise-exit-node: true
   vars:
     additionalConfigs: {}
-    

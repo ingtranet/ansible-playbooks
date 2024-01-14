@@ -11,7 +11,7 @@
     sysctl_file: /etc/sysctl.d/headscale.conf
     state: present
     reload: true
-  when: user == 'router'
+  when: role == 'router'
 
 - name: Install dnf-plugins-core
   ansible.builtin.dnf:
