@@ -4,6 +4,10 @@ k0s:
       role: controlplane
     k8s-ga-work-1.vd.ingtra.net:
       role: worker
+    k8s-ga-work-2.vd.ingtra.net:
+      role: worker
+    k8s-ga-gateway-1.vd.ingtra.net:
+      role: worker
     orin-nx-1.dv.ingtra.net:
       ansible_user: ing
       role: worker
@@ -17,6 +21,12 @@ k0s:
         - default
         - nvidia
     orin-nx-3.dv.ingtra.net:
+      ansible_user: ing
+      role: worker
+      containerd_profiles:
+        - default
+        - nvidia
+    k8s-ga-gpu-1.vd.ingtra.net:
       ansible_user: ing
       role: worker
       containerd_profiles:
