@@ -21,7 +21,7 @@ services:
 
   seaweedfs:
     container_name: seaweedfs
-    image: chrislusf/seaweedfs:3.59_large_disk
+    image: harbor.ingtra.net/docker.io/chrislusf/seaweedfs:3.59_large_disk
     command: server -master.volumeSizeLimitMB 30720 -volume.max 1000 -options /etc/seaweedfs/options
     restart: always
     volumes:
@@ -37,7 +37,7 @@ services:
 
   victoria-metrics:
     container_name: victoria-metrics
-    image: victoriametrics/victoria-metrics:v1.93.10
+    image: harbor.ingtra.net/docker.io/victoriametrics/victoria-metrics:v1.93.10
     restart: always
     volumes:
       - type: bind
@@ -46,6 +46,24 @@ services:
     networks:
       vlan365:
         ipv4_address: 10.3.65.13
+
+  postgresql:
+    container_name: postgresql
+    image: harbor.ingtra.net/docker.io/library/postgres:16.1
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: "{{ secret_postgresql_password }}"
+      POSTGRES_INITDB_ARGS: "-E UTF8"
+    volumes:
+      - type: bind
+        source: /volume1/docker/postgresql/data
+        target: /var/lib/postgresql/data
+      - type: bind
+        source: /volume1/docker/postgresql/conf/postgresql.conf
+        target: /etc/postgresql/postgresql.conf
+    networks:
+      vlan365:
+        ipv4_address: 10.3.65.14
 
 networks:
   vlan365:
