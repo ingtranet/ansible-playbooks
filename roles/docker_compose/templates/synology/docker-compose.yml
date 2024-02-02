@@ -65,12 +65,51 @@ services:
       vlan365:
         ipv4_address: 10.3.65.14
 
+  redpanda:
+    container_name: redpanda
+    image: harbor.ingtra.net/docker.io/redpandadata/redpanda:v23.3.4
+    restart: always
+    command:
+      - redpanda
+      - start
+      - --mode dev-container
+    volumes:
+      - type: bind
+        source: /volume1/docker/redpanda/data
+        target: /var/lib/redpanda/data
+    networks:
+      vlan365:
+        ipv4_address: 10.3.65.15
+
+  redpanda-console:
+    container_name: redpanda-console
+    image: harbor.ingtra.net/docker.io/redpandadata/console:v2.3.10
+    restart: always
+    entrypoint: /bin/sh
+    command: -c 'echo "$$CONSOLE_CONFIG_FILE" > /tmp/config.yml; /app/console'
+    environment:
+      CONFIG_FILEPATH: /tmp/config.yml
+      CONSOLE_CONFIG_FILE: |
+        kafka:
+          brokers: ["redpanda.sd.ingtra.net:9092"]
+          schemaRegistry:
+            enabled: true
+            urls: ["http://redpanda.sd.ingtra.net:8081"]
+        redpanda:
+          adminApi:
+            enabled: true
+            urls: ["http://redpanda.sd.ingtra.net:9644"]
+    networks:
+      vlan365:
+        ipv4_address: 10.3.65.16
+
 networks:
   vlan365:
     name: vlan365
     driver: macvlan
     driver_opts:
       parent: ovs_vlan365
+    enable_ipv6: false
     ipam:
       config:
         - subnet: 10.3.65.0/24
