@@ -103,6 +103,35 @@ services:
       vlan365:
         ipv4_address: 10.3.65.16
 
+  squid:
+    container_name: squid
+    image: harbor.ingtra.net/docker.io/elestio/squid:v6.7.1
+    restart: always
+    volumes:
+      - type: bind
+        source: /volume1/docker/squid/conf
+        target: /etc/squid
+      - type: bind
+        source: /volume1/docker/squid/data
+        target: /var/lib/squid
+    networks:
+      vlan365:
+        ipv4_address: 10.3.65.17
+
+  mongodb:
+    container_name: mongodb
+    image: harbor.ingtra.net/docker.io/mongo:7.0.5
+    restart: always
+    command:
+      - --wiredTigerCollectionBlockCompressor=zstd
+    volumes:
+      - type: bind
+        source: /volume1/docker/mongodb/data
+        target: /data
+    networks:
+      vlan365:
+        ipv4_address: 10.3.65.18
+
 networks:
   vlan365:
     name: vlan365

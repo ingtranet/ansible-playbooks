@@ -539,3 +539,77 @@ system {
         }
     }
 }
+
+
+
+interfaces {
+    ethernet eth0 {
+        offload {
+            gro
+            gso
+            lro
+            rps
+            sg
+            tso
+        }
+    }
+    loopback lo {
+    }
+}
+service {
+    ntp {
+        allow-client {
+            address 0.0.0.0/0
+            address ::/0
+        }
+        server time1.vyos.net {
+        }
+        server time2.vyos.net {
+        }
+        server time3.vyos.net {
+        }
+    }
+}
+system {
+    config-management {
+        commit-revisions 100
+    }
+    conntrack {
+        modules {
+            ftp
+            h323
+            nfs
+            pptp
+            sip
+            sqlnet
+            tftp
+        }
+    }
+    console {
+        device ttyS0 {
+            speed 115200
+        }
+    }
+    host-name vyos
+    login {
+        user vyos {
+            authentication {
+                encrypted-password {{ secret_vyos_encrypted_password }}
+                public-keys vyos@ingtranet {
+                    type ssh-rsa
+                    key {{ secret_ssh_public_key }}
+                }
+            }
+        }
+    }
+    syslog {
+        global {
+            facility all {
+                level info
+            }
+            facility local7 {
+                level debug
+            }
+        }
+    }
+}
