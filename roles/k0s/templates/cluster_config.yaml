@@ -15,7 +15,7 @@ spec:
       charts:
         - name: argocd
           chartname: argo/argo-cd
-          version: 5.35.0
+          version: 6.5.1
           namespace: argocd
           values: |
             server:

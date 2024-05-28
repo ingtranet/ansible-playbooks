@@ -33,7 +33,7 @@ k0s:
         - default
         - nvidia
   vars:
-    k0s_version: v1.28.4+k0s.0
+    k0s_version: v1.28.7+k0s.0
     node_type: default
     containerd_profiles:
       - default
