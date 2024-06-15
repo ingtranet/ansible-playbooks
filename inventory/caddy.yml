@@ -1,10 +1,7 @@
 caddy:
   hosts:
-    "admin-proxy.vd.ingtra.net":
+    "internal-http-proxy.vd.ingtra.net":
       config_path: /root/caddy
-      caddy_role: admin_gateway
-    "external-reverse-proxy.vd.ingtra.net":
-      config_path: /root/caddy
-      caddy_role: external_reverse_proxy
+      caddy_role: internal_http_proxy
   vars:
     caddy_version: 2.6.4

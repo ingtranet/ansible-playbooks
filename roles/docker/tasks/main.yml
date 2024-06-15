@@ -21,7 +21,6 @@
     name:
       - docker
       - docker-compose
-      - urllib3<2
     state: present
 
 - name: Start docker
