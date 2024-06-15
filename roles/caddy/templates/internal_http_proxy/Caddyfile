@@ -1,0 +1,25 @@
+{
+    log {
+        level info
+    }
+
+    auto_https disable_redirects
+}
+
+(cf_tls) {
+    tls {
+        issuer zerossl {
+            disable_http_challenge
+            email {{ secret_acme_email }}
+            dns cloudflare {{ secret_cloudflare_token }}
+            resolvers 1.1.1.1
+        }
+    }
+}
+
+https://harbor.ingtra.net {
+    import cf_tls
+    reverse_proxy {
+        to http://10.3.64.15
+    }
+}

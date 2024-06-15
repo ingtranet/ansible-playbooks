@@ -1,0 +1,32 @@
+{
+    log {
+        level info
+    }
+
+    auto_https off
+}
+
+http://memos.cookie.sh {
+    reverse_proxy {
+        to http://10.3.64.14:5230
+    }
+    log {
+        format json
+    }
+}
+
+http://kasm.ingtra.net {
+    reverse_proxy {
+        to https://kasm-workspace.vd.ingtra.net
+        transport http {
+            tls_insecure_skip_verify
+        }
+    }
+    log {
+        format json
+    }
+}
+
+http:// {
+    respond "ok"
+}
