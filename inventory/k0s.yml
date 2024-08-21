@@ -1,12 +1,10 @@
 k0s:
   hosts:
-    k8s-ga-ctrl-1.vd.ingtra.net:
+    k8s-na-ctrl-1.vd.ingtra.net:
       role: controlplane
-    k8s-ga-work-1.vd.ingtra.net:
+    k8s-na-work-1.vd.ingtra.net:
       role: worker
-    k8s-ga-work-2.vd.ingtra.net:
-      role: worker
-    k8s-ga-gateway-1.vd.ingtra.net:
+    k8s-na-work-2.vd.ingtra.net:
       role: worker
     orin-nx-1.dv.ingtra.net:
       ansible_user: ing
@@ -26,16 +24,16 @@ k0s:
       containerd_profiles:
         - default
         - nvidia
-    k8s-ga-gpu-1.vd.ingtra.net:
-      ansible_user: ing
-      role: worker
-      containerd_profiles:
-        - default
-        - nvidia
+    # k8s-ga-gpu-1.vd.ingtra.net:
+    #   ansible_user: ing
+    #   role: worker
+    #   containerd_profiles:
+    #     - default
+    #     - nvidia
   vars:
-    k0s_version: v1.28.7+k0s.0
+    k0s_version: v1.29.7+k0s.0
     node_type: default
     containerd_profiles:
       - default
     force_reinstall: false
-    token_issuer: k8s-ga-ctrl-1.vd.ingtra.net
+    token_issuer: k8s-na-ctrl-1.vd.ingtra.net
