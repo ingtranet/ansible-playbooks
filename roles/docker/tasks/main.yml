@@ -21,6 +21,7 @@
     name:
       - docker
       - docker-compose
+      - requests<2.32
     state: present
 
 - name: Start docker

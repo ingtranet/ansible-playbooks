@@ -3,8 +3,5 @@ caddy:
     "internal-http-proxy.vd.ingtra.net":
       config_path: /root/caddy
       caddy_role: internal_http_proxy
-    "cloudflare-tunnel.vd.ingtra.net":
-      config_path: /root/caddy
-      caddy_role: cloudflare_tunnel
   vars:
     caddy_version: 2.6.4
