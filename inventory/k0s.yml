@@ -24,12 +24,11 @@ k0s:
       containerd_profiles:
         - default
         - nvidia
-    # k8s-ga-gpu-1.vd.ingtra.net:
-    #   ansible_user: ing
-    #   role: worker
-    #   containerd_profiles:
-    #     - default
-    #     - nvidia
+    turing-rk-1.dv.ingtra.net:
+      ansible_user: ing
+      role: worker
+      containerd_profiles:
+        - default
   vars:
     k0s_version: v1.29.7+k0s.0
     node_type: default

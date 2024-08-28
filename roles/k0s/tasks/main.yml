@@ -9,15 +9,22 @@
     dest: //etc/k0s/containerd.d/{{ item }}.toml
   loop: "{{ containerd_profiles }}"
 
+- name: Check NetworkManager config exists
+  ansible.builtin.stat:
+    path: /etc/NetworkManager/conf.d
+  register: nm_exists
+
 - name: Disable NetworkManager for calico
   ansible.builtin.copy:
     src: calico.conf
     dest: /etc/NetworkManager/conf.d/calico.conf
+  when: nm_exists.stat.exists
 
 - name: Reload NetworkManager
   ansible.builtin.systemd:
     name: NetworkManager
     state: restarted
+  when: nm_exists.stat.exists
 
 - name: Install K0S
   ansible.builtin.include_tasks: install_{{ node_type }}_k0s.yml
