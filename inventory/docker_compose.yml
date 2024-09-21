@@ -1,7 +1,7 @@
 docker_compose:
   hosts:
     "synology.dv.ingtra.net":
-      ansible_user: cookieshake
+      ansible_user: root
       ansible_python_interpreter: /root/ansible_venv/bin/python3
       config_path: /volume1/docker/compose
       compose_roles:

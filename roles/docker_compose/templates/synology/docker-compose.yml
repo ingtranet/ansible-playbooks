@@ -21,8 +21,8 @@ services:
 
   seaweedfs:
     container_name: seaweedfs
-    image: harbor.ingtra.net/docker.io/chrislusf/seaweedfs:3.59_large_disk
-    command: server -master.volumeSizeLimitMB 30720 -volume.max 1000 -options /etc/seaweedfs/options
+    image: harbor.ingtra.net/docker.io/chrislusf/seaweedfs:3.73_large_disk
+    command: server -master.volumeSizeLimitMB 20000 -volume.max 1000 -options /etc/seaweedfs/options
     restart: always
     volumes:
       - type: bind
@@ -35,102 +35,87 @@ services:
       vlan365:
         ipv4_address: 10.3.65.12
 
-  victoria-metrics:
-    container_name: victoria-metrics
-    image: harbor.ingtra.net/docker.io/victoriametrics/victoria-metrics:v1.93.10
-    restart: always
-    volumes:
-      - type: bind
-        source: /volume1/docker/victoria-metrics/data
-        target: /victoria-metrics-data
-    networks:
-      vlan365:
-        ipv4_address: 10.3.65.13
+  # victoria-metrics:
+  #   container_name: victoria-metrics
+  #   image: harbor.ingtra.net/docker.io/victoriametrics/victoria-metrics:v1.103.0
+  #   restart: always
+  #   volumes:
+  #     - type: bind
+  #       source: /volume1/docker/victoria-metrics/data
+  #       target: /victoria-metrics-data
+  #   networks:
+  #     vlan365:
+  #       ipv4_address: 10.3.65.13
 
-  postgresql:
-    container_name: postgresql
-    image: harbor.ingtra.net/docker.io/library/postgres:16.1
-    restart: always
-    environment:
-      POSTGRES_PASSWORD: "{{ secret_postgresql_password }}"
-      POSTGRES_INITDB_ARGS: "-E UTF8"
-    volumes:
-      - type: bind
-        source: /volume1/docker/postgresql/data
-        target: /var/lib/postgresql/data
-      - type: bind
-        source: /volume1/docker/postgresql/conf/postgresql.conf
-        target: /etc/postgresql/postgresql.conf
-    networks:
-      vlan365:
-        ipv4_address: 10.3.65.14
+  # postgresql:
+  #   container_name: postgresql
+  #   image: harbor.ingtra.net/docker.io/library/postgres:16.4
+  #   restart: always
+  #   environment:
+  #     POSTGRES_PASSWORD: "{{ secret_postgresql_password }}"
+  #     POSTGRES_INITDB_ARGS: "-E UTF8"
+  #   volumes:
+  #     - type: bind
+  #       source: /volume1/docker/postgresql/data
+  #       target: /var/lib/postgresql/data
+  #     - type: bind
+  #       source: /volume1/docker/postgresql/conf/postgresql.conf
+  #       target: /etc/postgresql/postgresql.conf
+  #   networks:
+  #     vlan365:
+  #       ipv4_address: 10.3.65.14
 
-  redpanda:
-    container_name: redpanda
-    image: harbor.ingtra.net/docker.io/redpandadata/redpanda:v23.3.4
-    restart: always
-    command:
-      - redpanda
-      - start
-      - --mode dev-container
-    volumes:
-      - type: bind
-        source: /volume1/docker/redpanda/data
-        target: /var/lib/redpanda/data
-    networks:
-      vlan365:
-        ipv4_address: 10.3.65.15
+  # redpanda:
+  #   container_name: redpanda
+  #   image: harbor.ingtra.net/docker.io/redpandadata/redpanda:v24.1.16
+  #   restart: always
+  #   command:
+  #     - redpanda
+  #     - start
+  #     - --mode dev-container
+  #   volumes:
+  #     - type: bind
+  #       source: /volume1/docker/redpanda/data
+  #       target: /var/lib/redpanda/data
+  #   networks:
+  #     vlan365:
+  #       ipv4_address: 10.3.65.15
 
-  redpanda-console:
-    container_name: redpanda-console
-    image: harbor.ingtra.net/docker.io/redpandadata/console:v2.3.10
-    restart: always
-    entrypoint: /bin/sh
-    command: -c 'echo "$$CONSOLE_CONFIG_FILE" > /tmp/config.yml; /app/console'
-    environment:
-      CONFIG_FILEPATH: /tmp/config.yml
-      CONSOLE_CONFIG_FILE: |
-        kafka:
-          brokers: ["redpanda.sd.ingtra.net:9092"]
-          schemaRegistry:
-            enabled: true
-            urls: ["http://redpanda.sd.ingtra.net:8081"]
-        redpanda:
-          adminApi:
-            enabled: true
-            urls: ["http://redpanda.sd.ingtra.net:9644"]
-    networks:
-      vlan365:
-        ipv4_address: 10.3.65.16
+  # redpanda-console:
+  #   container_name: redpanda-console
+  #   image: harbor.ingtra.net/docker.io/redpandadata/console:v2.7.2
+  #   restart: always
+  #   entrypoint: /bin/sh
+  #   command: -c 'echo "$$CONSOLE_CONFIG_FILE" > /tmp/config.yml; /app/console'
+  #   environment:
+  #     CONFIG_FILEPATH: /tmp/config.yml
+  #     CONSOLE_CONFIG_FILE: |
+  #       kafka:
+  #         brokers: ["redpanda.sd.ingtra.net:9092"]
+  #         schemaRegistry:
+  #           enabled: true
+  #           urls: ["http://redpanda.sd.ingtra.net:8081"]
+  #       redpanda:
+  #         adminApi:
+  #           enabled: true
+  #           urls: ["http://redpanda.sd.ingtra.net:9644"]
+  #   networks:
+  #     vlan365:
+  #       ipv4_address: 10.3.65.16
 
-  squid:
-    container_name: squid
-    image: harbor.ingtra.net/docker.io/elestio/squid:v6.7.1
-    restart: always
-    volumes:
-      - type: bind
-        source: /volume1/docker/squid/conf
-        target: /etc/squid
-      - type: bind
-        source: /volume1/docker/squid/data
-        target: /var/lib/squid
-    networks:
-      vlan365:
-        ipv4_address: 10.3.65.17
-
-  mongodb:
-    container_name: mongodb
-    image: harbor.ingtra.net/docker.io/mongo:7.0.5
-    restart: always
-    command:
-      - --wiredTigerCollectionBlockCompressor=zstd
-    volumes:
-      - type: bind
-        source: /volume1/docker/mongodb/data
-        target: /data
-    networks:
-      vlan365:
-        ipv4_address: 10.3.65.18
+  # mongodb:
+  #   container_name: mongodb
+  #   image: harbor.ingtra.net/docker.io/mongo:7.0.5
+  #   restart: always
+  #   command:
+  #     - --wiredTigerCollectionBlockCompressor=zstd
+  #   volumes:
+  #     - type: bind
+  #       source: /volume1/docker/mongodb/data
+  #       target: /data
+  #   networks:
+  #     vlan365:
+  #       ipv4_address: 10.3.65.17
 
 networks:
   vlan365:

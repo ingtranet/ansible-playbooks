@@ -16,13 +16,6 @@
     }
 }
 
-harbor.ingtra.net {
-    import cf_tls
-	reverse_proxy {
-	    to 10.3.65.201:8080
-	}
-}
-
 master.sf.ingtra.net {
     import cf_tls
     reverse_proxy {

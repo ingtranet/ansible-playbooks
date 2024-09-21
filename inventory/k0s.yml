@@ -29,6 +29,12 @@ k0s:
       role: worker
       containerd_profiles:
         - default
+    k8s-na-gpu-1.vd.ingtra.net:
+      ansible_user: ing
+      role: worker
+      containerd_profiles:
+        - default
+        - nvidia
   vars:
     k0s_version: v1.29.7+k0s.0
     node_type: default
