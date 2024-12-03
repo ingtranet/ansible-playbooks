@@ -9,21 +9,6 @@ spec:
       - 10.160.0.1
       - {{ ansible_eth0.ipv4.address }}
       - {{ inventory_hostname }}
-      - k8s-ga-api.hp.ingtra.net
-  extensions:
-    helm:
-      charts:
-        - name: argocd
-          chartname: argo/argo-cd
-          version: 6.5.1
-          namespace: argocd
-          values: |
-            server:
-              extraArgs:
-              - --insecure
-      repositories:
-        - name: argo
-          url: https://argoproj.github.io/argo-helm
   network:
     provider: calico
     clusterDomain: kn.ingtra.net

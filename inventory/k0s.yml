@@ -6,6 +6,8 @@ k0s:
       role: worker
     k8s-na-work-2.vd.ingtra.net:
       role: worker
+    k8s-na-work-3.vd.ingtra.net:
+      role: worker
     orin-nx-1.dv.ingtra.net:
       ansible_user: ing
       role: worker
